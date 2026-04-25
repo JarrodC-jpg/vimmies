@@ -75,7 +75,7 @@ private:
   StickieColor m_currentColor = StickieColor::Yellow;
 
   QLineEdit *m_commandLine = nullptr;
-
+  QTimer *m_saveTimer = nullptr;
   std::map<StickieColor, QString> m_notes;
   std::map<StickieColor, QString> m_titles;
   std::map<StickieColor, int> m_cursorPositions;

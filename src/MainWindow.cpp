@@ -37,6 +37,7 @@
 #include <qstackedwidget.h>
 #include <qstandardpaths.h>
 #include <qtextcursor.h>
+#include <qtimer.h>
 #include <qwidget.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -45,11 +46,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
   setStyleSheet("QMainWindow { border 3px solid #232378;}");
   resize(420, 320);
+
   createMainContainer();
   createTextEditor();
   createProjectList();
   createCommandBar();
   createTabBar();
+
   QTimer::singleShot(50, this, [this]() { updateTabBar(); });
   m_defualtSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -111,10 +114,16 @@ void MainWindow::createTextEditor() {
   m_textEdit->setFontPointSize(12);
   m_textEdit->installEventFilter(this);
 
+  m_saveTimer = new QTimer(this);
+  m_saveTimer->setSingleShot(true);
+  m_saveTimer->setInterval(400);
+
+  connect(m_saveTimer, &QTimer::timeout, this, [this]() { saveToDisk(); });
+
   connect(m_textEdit, &QTextEdit::textChanged, this, [this]() {
     restoreFontSettings();
     saveCurrentText();
-    saveToDisk();
+    m_saveTimer->start();
   });
 
   layout->addWidget(m_textEdit);
@@ -431,6 +440,7 @@ void MainWindow::loadTextForColor(StickieColor color) {
 }
 
 void MainWindow::saveToDisk() {
+  qDebug() << "Save to disk has fired";
   QJsonObject root;
   for (const auto &[color, text] : m_notes) {
     QString key = QString::number(static_cast<int>(color));
