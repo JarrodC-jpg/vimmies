@@ -16,6 +16,7 @@
 #include <qwidget.h>
 
 enum class StickieColor { Yellow, Cyan, Purple, Peach, Pink, Gray };
+enum class Mode { Normal, Insert };
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
