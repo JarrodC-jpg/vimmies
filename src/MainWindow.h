@@ -26,7 +26,6 @@ protected:
 private:
   // Creation of window views and such
   void createMainContainer();
-  void createMenus();
   void createTextEditor();
   void createTabBar();
   void createCommandBar();
@@ -44,8 +43,8 @@ private:
   // Project Functions
   void showProjectBrowser();
   void hideProjectBrowser();
-  void openProject();
-  void newProject();
+  void openProject(const QString &name); // TODO call from executeCommand
+  void newProject(const QString &name);  // TODO call from executeCommand
   void newProjectInsertCmd();
   void loadLastProjectOnOpen();
   void loadSelectedProject(const QString &filename);

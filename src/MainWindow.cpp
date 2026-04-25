@@ -16,6 +16,7 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <qobject.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qDebug() << "Welcome to vimies, notes with vim-like motions!";
@@ -544,32 +545,8 @@ void MainWindow::saveAs() {
   saveToDisk();
 }
 
-void MainWindow::createMenus() {
-  QMenuBar *menuBar = new QMenuBar(this);
-  setMenuBar(menuBar);
-
-  QMenu *fileMenu = menuBar->addMenu("&File");
-
-  QAction *newAction = fileMenu->addAction("&New");
-  connect(newAction, &QAction::triggered, this, &MainWindow::newProject);
-
-  fileMenu->addSeparator();
-
-  QAction *openAction = fileMenu->addAction("&Open");
-  connect(openAction, &QAction::triggered, this,
-          &MainWindow::showProjectBrowser);
-
-  QAction *saveAsAction = fileMenu->addAction("Save &As...");
-  connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveAs);
-}
-
-void MainWindow::newProject() {
-  if (m_commandLine) {
-    m_commandLine->setText("new: ");
-    m_commandLine->setFocus();
-    m_commandLine->setCursorPosition(5);
-  }
-}
+// TODO Call newProject from executeCommand
+void MainWindow::newProject(const QString &name) {}
 
 void MainWindow::newProjectInsertCmd() {
   if (m_commandLine) {
@@ -579,23 +556,7 @@ void MainWindow::newProjectInsertCmd() {
   }
 }
 
-void MainWindow::openProject() {
-  QString filename = QFileDialog::getOpenFileName(this, "Open Stikies Project",
-                                                  QDir::homePath(),
-                                                  "Stickies Projects (*stk)");
-
-  if (filename.isEmpty()) {
-    return;
-  }
-
-  m_projectFilePath = filename;
-  setWindowTitle("Stickies - " + QFileInfo(filename).fileName());
-
-  loadFromDisk();
-  applyColor(m_currentColor);
-
-  qDebug() << "Opened project:" << filename;
-}
+void MainWindow::openProject(const QString &name) {}
 
 void MainWindow::saveStateOnClose() {
   saveCurrentText();
