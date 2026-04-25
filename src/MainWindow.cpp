@@ -15,7 +15,6 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <qobject.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qDebug() << "Welcome to vimies, notes with vim-like motions!";
@@ -30,14 +29,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   createCommandBar();
   createTabBar();
 
-  QTimer::singleShot(50, this, [this]() { updateTabBar(); });
   m_defaultSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 
   qDebug() << m_defaultSaveDir;
 
   QDir().mkpath(m_defaultSaveDir);
-  //  createMenus();
 
   loadLastProjectOnOpen();
 
@@ -133,6 +130,8 @@ void MainWindow::createTabBar() {
       vbox->insertWidget(0, m_tabBar);
     }
   }
+
+  QTimer::singleShot(50, this, [this]() { updateTabBar(); });
 }
 
 void MainWindow::updateTabBar() {
