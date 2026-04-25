@@ -3,7 +3,6 @@
 #include <QDir>
 #include <QEvent>
 #include <QFile>
-#include <QFileDialog>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QKeyEvent>
