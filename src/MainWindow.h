@@ -8,12 +8,6 @@
 #include <QStackedWidget>
 #include <QTextEdit>
 #include <map>
-#include <qabstractspinbox.h>
-#include <qevent.h>
-#include <qlist.h>
-#include <qobject.h>
-#include <qstackedwidget.h>
-#include <qwidget.h>
 
 enum class StickieColor { Yellow, Cyan, Purple, Peach, Pink, Gray };
 enum class Mode { Normal, Insert };
@@ -81,5 +75,5 @@ private:
   std::map<StickieColor, int> m_cursorPositions;
   std::map<StickieColor, int> m_scrollPositions;
   QString m_projectFilePath = "empty.stk";
-  QString m_defualtSaveDir;
+  QString m_defaultSaveDir;
 };

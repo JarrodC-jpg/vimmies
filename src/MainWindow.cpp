@@ -16,29 +16,6 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <qboxlayout.h>
-#include <qcolor.h>
-#include <qcontainerfwd.h>
-#include <qcoreevent.h>
-#include <qdir.h>
-#include <qevent.h>
-#include <qfileinfo.h>
-#include <qjsonobject.h>
-#include <qkeysequence.h>
-#include <qlabel.h>
-#include <qlineedit.h>
-#include <qlistwidget.h>
-#include <qlogging.h>
-#include <qnamespace.h>
-#include <qobject.h>
-#include <qpalette.h>
-#include <qpushbutton.h>
-#include <qshortcut.h>
-#include <qstackedwidget.h>
-#include <qstandardpaths.h>
-#include <qtextcursor.h>
-#include <qtimer.h>
-#include <qwidget.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qDebug() << "Welcome to vimies, notes with vim-like motions!";
@@ -54,12 +31,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   createTabBar();
 
   QTimer::singleShot(50, this, [this]() { updateTabBar(); });
-  m_defualtSaveDir =
+  m_defaultSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 
-  qDebug() << m_defualtSaveDir;
+  qDebug() << m_defaultSaveDir;
 
-  QDir().mkpath(m_defualtSaveDir);
+  QDir().mkpath(m_defaultSaveDir);
   //  createMenus();
 
   loadLastProjectOnOpen();
@@ -276,7 +253,7 @@ void MainWindow::executeCommand() {
     if (!name.endsWith(".stk", Qt::CaseSensitive)) {
       name += ".stk";
     }
-    QString fullpath = m_defualtSaveDir + "/" + name;
+    QString fullpath = m_defaultSaveDir + "/" + name;
 
     m_projectFilePath = fullpath;
     setWindowTitle("Stickies - " + name);
@@ -552,7 +529,7 @@ void MainWindow::loadFromDisk() {
 void MainWindow::saveAs() {
   qDebug() << "Saving";
   QString filename = QFileDialog::getSaveFileName(
-      this, "Save Stickies Project", m_defualtSaveDir, "Stickies (*.stk)");
+      this, "Save Stickies Project", m_defaultSaveDir, "Stickies (*.stk)");
 
   if (filename.isEmpty())
     return;
@@ -673,7 +650,7 @@ void MainWindow::showProjectBrowser() {
   )");
 
   m_projectList->clear();
-  QDir dir(m_defualtSaveDir);
+  QDir dir(m_defaultSaveDir);
   QFileInfoList files =
       dir.entryInfoList(QStringList() << "*.stk", QDir::Files);
 
