@@ -98,8 +98,7 @@ void MainWindow::createMainContainer() {
   mainLayout->setSpacing(0);
 
   mainLayout->addWidget(m_stackedWidget, 1);
-  mainLayout->addWidget(m_commandLine ? m_commandLine->parentWidget()
-                                      : new QWidget());
+
   setCentralWidget(mainContainer);
 }
 
