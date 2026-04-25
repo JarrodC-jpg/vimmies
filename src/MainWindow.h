@@ -52,7 +52,6 @@ private:
   // Disk Functions
   void loadFromDisk();
   void saveToDisk();
-  void saveAs();
 
   // Reset data in an empty project
   void resetAllData();
@@ -66,6 +65,7 @@ private:
 
   QTextEdit *m_textEdit = nullptr;
   StickieColor m_currentColor = StickieColor::Yellow;
+  Mode m_mode = Mode::Normal;
 
   QLineEdit *m_commandLine = nullptr;
   QTimer *m_saveTimer = nullptr;

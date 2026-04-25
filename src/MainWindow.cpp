@@ -51,9 +51,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     }
   });
 
-  auto *saveAsShortcut = new QShortcut(QKeySequence("Ctrl+s"), this);
-  connect(saveAsShortcut, &QShortcut::activated, this, &MainWindow::saveAs);
-
   auto *openProjectShortcut = new QShortcut(QKeySequence("Ctrl+o"), this);
   connect(openProjectShortcut, &QShortcut::activated, this,
           &MainWindow::showProjectBrowser);
@@ -525,24 +522,6 @@ void MainWindow::loadFromDisk() {
   }
 
   loadTextForColor(m_currentColor);
-}
-
-void MainWindow::saveAs() {
-  qDebug() << "Saving";
-  QString filename = QFileDialog::getSaveFileName(
-      this, "Save Stickies Project", m_defaultSaveDir, "Stickies (*.stk)");
-
-  if (filename.isEmpty())
-    return;
-
-  if (!filename.endsWith(".stk", Qt::CaseInsensitive)) {
-    filename += ".stk";
-  }
-
-  m_projectFilePath = filename;
-  setWindowTitle("Stickies - " + QFileInfo(filename).fileName());
-  saveCurrentText();
-  saveToDisk();
 }
 
 // TODO Call newProject from executeCommand
