@@ -31,9 +31,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   m_defaultSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-
-  qDebug() << m_defaultSaveDir;
-
   QDir().mkpath(m_defaultSaveDir);
 
   loadLastProjectOnOpen();
@@ -412,7 +409,6 @@ void MainWindow::loadTextForColor(StickieColor color) {
 }
 
 void MainWindow::saveToDisk() {
-  qDebug() << "Save to disk has fired";
   QJsonObject root;
   for (const auto &[color, text] : m_notes) {
     QString key = QString::number(static_cast<int>(color));
