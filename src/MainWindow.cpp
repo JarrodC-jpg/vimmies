@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     }
 
     if (m_commandLine->hasFocus()) {
-      exitCommadLine();
+      exitCommandLine();
       return;
     }
     enterCommandLine();
@@ -297,7 +297,7 @@ void MainWindow::enterCommandLine() {
   m_commandLine->setCursorPosition(1);
 }
 
-void MainWindow::exitCommadLine() {
+void MainWindow::exitCommandLine() {
   m_commandLine->clear();
   m_commandLine->setPlaceholderText("Ctrl+/ to focus");
   m_textEdit->setFocus();
@@ -591,7 +591,7 @@ void MainWindow::newProject(const QString &name) {
 
 void MainWindow::newProjectInsertCmd() {
   if (m_commandLine) {
-    m_commandLine->setText("new: ");
+    m_commandLine->setText(":new ");
     m_commandLine->setFocus();
     m_commandLine->setCursorPosition(5);
   }
@@ -744,7 +744,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
   if (obj == m_commandLine && event->type() == QEvent::KeyPress) {
     auto *keyEvent = static_cast<QKeyEvent *>(event);
     if (keyEvent->key() == Qt::Key_Escape) {
-      exitCommadLine();
+      exitCommandLine();
       return true;
     }
   }

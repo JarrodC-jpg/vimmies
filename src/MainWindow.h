@@ -37,7 +37,7 @@ private:
   // Action Functions
   void executeCommand();
   void enterCommandLine();
-  void exitCommadLine();
+  void exitCommandLine();
   void updateTabBar();
   void applyColor(StickieColor color);
   void setCurrentTitle(const QString &title);
