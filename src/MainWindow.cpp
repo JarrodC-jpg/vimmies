@@ -15,6 +15,11 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <qcoreevent.h>
+#include <qdir.h>
+#include <qlogging.h>
+#include <qnamespace.h>
+#include <qobject.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qDebug() << "Welcome to vimies, notes with vim-like motions!";
@@ -38,10 +43,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   applyColor(m_currentColor);
 
   new QShortcut(QKeySequence("Ctrl+/"), this, [this]() {
-    if (m_commandLine) {
-      m_commandLine->setFocus();
-      m_commandLine->selectAll();
+    if (!m_commandLine || !m_textEdit) {
+      return;
     }
+
+    if (m_commandLine->hasFocus()) {
+      m_textEdit->setFocus();
+      m_commandLine->clear();
+      m_commandLine->setPlaceholderText("Ctrl+/ to focus");
+      return;
+    }
+
+    m_commandLine->setFocus();
+    m_commandLine->setText(":");
+    m_commandLine->setCursorPosition(1);
   });
 
   auto *openProjectShortcut = new QShortcut(QKeySequence("Ctrl+o"), this);
@@ -208,6 +223,7 @@ void MainWindow::createCommandBar() {
 
   // QLabel *label = new QLabel("Command:", commandWidget);
   m_commandLine = new QLineEdit(commandWidget);
+  m_commandLine->installEventFilter(this);
   m_commandLine->setPlaceholderText("Ctrl+/ to focus");
 
   m_commandLine->setStyleSheet(
@@ -234,37 +250,40 @@ void MainWindow::createCommandBar() {
 }
 
 void MainWindow::executeCommand() {
-  QString cmd = m_commandLine->text().trimmed();
-  if (cmd.isEmpty())
+  QString input = m_commandLine->text().trimmed();
+  if (input.isEmpty())
     return;
 
-  if (cmd.startsWith("new: ", Qt::CaseSensitive)) {
-    QString name = cmd.mid(4).trimmed();
-    if (name.isEmpty()) {
-      name = "Untitled";
-    }
-    if (!name.endsWith(".stk", Qt::CaseSensitive)) {
-      name += ".stk";
-    }
-    QString fullpath = m_defaultSaveDir + "/" + name;
+  if (!input.startsWith(':')) {
+    m_commandLine->clear();
+    return;
+  }
 
-    m_projectFilePath = fullpath;
-    setWindowTitle("Stickies - " + name);
+  input.remove(0, 1);
 
-    resetAllData();
-    // saveToDisk();
-    qDebug() << "Created new Project" << fullpath;
-    if (m_textEdit) {
-      m_textEdit->setFocus();
+  const int firstSpace = input.indexOf(' ');
+
+  QString cmd;
+  QString args;
+
+  if (firstSpace == -1) {
+    cmd = input;
+    args = "";
+  } else {
+    cmd = input.left(firstSpace);
+    args = input.mid(firstSpace + 1).trimmed();
+  }
+
+  if (cmd == "new") {
+    newProject(args);
+  } else if (cmd == "open") {
+    if (args.isEmpty()) {
+      showProjectBrowser();
+    } else {
+      openProject(args);
     }
-  } else if (cmd.startsWith("title:", Qt::CaseSensitive)) {
-    QString newTitle = cmd.mid(6).trimmed();
-    if (!newTitle.isEmpty()) {
-      m_titles[m_currentColor] = newTitle;
-      updateTabBar();
-      qDebug() << "Title set for color" << static_cast<int>(m_currentColor) + 1
-               << "to" << newTitle;
-    }
+  } else if (cmd == "title") {
+    setCurrentTitle(args);
   }
   m_commandLine->clear();
 }
@@ -377,6 +396,18 @@ void MainWindow::applyColor(StickieColor color) {
       QString("QMainWindow {background-color: %1; border: 3px solid %1;}")
           .arg(textColor);
   setStyleSheet(windowStyle);
+}
+
+void MainWindow::setCurrentTitle(const QString &title) {
+  QString trimmedTitle = title.trimmed();
+
+  if (trimmedTitle.isEmpty()) {
+    return;
+  }
+  m_titles[m_currentColor] = trimmedTitle;
+  updateTabBar();
+  qDebug() << "Title set for color" << static_cast<int>(m_currentColor) + 1
+           << "to" << trimmedTitle;
 }
 
 void MainWindow::saveCurrentText() {
@@ -519,7 +550,29 @@ void MainWindow::loadFromDisk() {
 }
 
 // TODO Call newProject from executeCommand
-void MainWindow::newProject(const QString &name) {}
+void MainWindow::newProject(const QString &name) {
+  QString projName = name;
+
+  if (projName.isEmpty()) {
+    qDebug() << "Empty Project Name";
+    return;
+  }
+  if (!projName.endsWith(".vmi", Qt::CaseSensitive)) {
+    projName += ".vmi";
+  }
+  QString fullpath = m_defaultSaveDir + "/" + projName;
+
+  m_projectFilePath = fullpath;
+  setWindowTitle("Stickies - " + projName);
+
+  resetAllData();
+
+  if (m_textEdit) {
+    m_textEdit->setFocus();
+  }
+
+  qDebug() << "Created new Project" << fullpath;
+}
 
 void MainWindow::newProjectInsertCmd() {
   if (m_commandLine) {
@@ -529,7 +582,26 @@ void MainWindow::newProjectInsertCmd() {
   }
 }
 
-void MainWindow::openProject(const QString &name) {}
+void MainWindow::openProject(const QString &name) {
+  QString projectName = name.trimmed();
+
+  if (projectName.isEmpty()) {
+    return;
+  }
+
+  if (!projectName.endsWith(".vmi")) {
+    projectName += ".vmi";
+  }
+
+  QString fullPath = m_defaultSaveDir + "/" + projectName;
+
+  if (!QFile::exists(fullPath)) {
+    qDebug() << "Project does not exist:" << fullPath;
+    return;
+  }
+
+  loadSelectedProject(fullPath);
+}
 
 void MainWindow::saveStateOnClose() {
   saveCurrentText();
@@ -586,7 +658,7 @@ void MainWindow::showProjectBrowser() {
   m_projectList->clear();
   QDir dir(m_defaultSaveDir);
   QFileInfoList files =
-      dir.entryInfoList(QStringList() << "*.stk", QDir::Files);
+      dir.entryInfoList(QStringList() << "*.vmi", QDir::Files);
 
   for (const auto &fi : files) {
     QListWidgetItem *item = new QListWidgetItem(fi.fileName());
@@ -651,6 +723,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
       if (item) {
         loadSelectedProject(item->data(Qt::UserRole).toString());
       }
+    }
+  }
+
+  if (obj == m_commandLine && event->type() == QEvent::KeyPress) {
+    auto *keyEvent = static_cast<QKeyEvent *>(event);
+    if (keyEvent->key() == Qt::Key_Escape) {
+      m_commandLine->clear();
+      m_commandLine->setPlaceholderText("Ctrl+/ to focus");
+
+      if (m_textEdit) {
+        m_textEdit->setFocus();
+      }
+      return true;
     }
   }
   return QMainWindow::eventFilter(obj, event);

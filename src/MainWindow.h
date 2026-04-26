@@ -8,6 +8,7 @@
 #include <QStackedWidget>
 #include <QTextEdit>
 #include <map>
+#include <qobject.h>
 
 enum class StickieColor { Yellow, Cyan, Purple, Peach, Pink, Gray };
 enum class Mode { Normal, Insert };
@@ -35,6 +36,7 @@ private:
   void executeCommand();
   void updateTabBar();
   void applyColor(StickieColor color);
+  void setCurrentTitle(const QString &title);
   void loadTextForColor(StickieColor color);
   void restoreFontSettings();
   void saveCurrentText();
@@ -73,6 +75,6 @@ private:
   std::map<StickieColor, QString> m_titles;
   std::map<StickieColor, int> m_cursorPositions;
   std::map<StickieColor, int> m_scrollPositions;
-  QString m_projectFilePath = "empty.stk";
+  QString m_projectFilePath = "empty.vmi";
   QString m_defaultSaveDir;
 };
