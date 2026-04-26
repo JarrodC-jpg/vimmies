@@ -1,5 +1,4 @@
 #pragma once
-
 #include <QCloseEvent>
 #include <QLineEdit>
 #include <QListWidget>
@@ -7,7 +6,9 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QTextEdit>
+#include <functional>
 #include <map>
+#include <qmap.h>
 #include <qobject.h>
 
 enum class StickieColor { Yellow, Cyan, Purple, Peach, Pink, Gray };
@@ -31,9 +32,12 @@ private:
   void createTabBar();
   void createCommandBar();
   void createProjectList();
+  void setupCommandHandlers();
 
   // Action Functions
   void executeCommand();
+  void enterCommandLine();
+  void exitCommadLine();
   void updateTabBar();
   void applyColor(StickieColor color);
   void setCurrentTitle(const QString &title);
@@ -58,6 +62,8 @@ private:
   // Reset data in an empty project
   void resetAllData();
 
+  Mode m_mode = Mode::Normal;
+
   QWidget *m_tabBar = nullptr;
   QList<QPushButton *> m_tabs;
 
@@ -67,9 +73,11 @@ private:
 
   QTextEdit *m_textEdit = nullptr;
   StickieColor m_currentColor = StickieColor::Yellow;
-  Mode m_mode = Mode::Normal;
 
   QLineEdit *m_commandLine = nullptr;
+  using CommandHandler = std::function<void(const QString &)>;
+  QMap<QString, CommandHandler> m_commandHandlers;
+
   QTimer *m_saveTimer = nullptr;
   std::map<StickieColor, QString> m_notes;
   std::map<StickieColor, QString> m_titles;

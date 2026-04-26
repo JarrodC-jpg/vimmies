@@ -26,13 +26,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   setWindowTitle("Stickies");
   setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
   setStyleSheet("QMainWindow { border 3px solid #232378;}");
-  resize(420, 320);
+  resize(420, 500);
 
   createMainContainer();
   createTextEditor();
   createProjectList();
   createCommandBar();
   createTabBar();
+  setupCommandHandlers();
 
   m_defaultSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -48,15 +49,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     }
 
     if (m_commandLine->hasFocus()) {
-      m_textEdit->setFocus();
-      m_commandLine->clear();
-      m_commandLine->setPlaceholderText("Ctrl+/ to focus");
+      exitCommadLine();
       return;
     }
-
-    m_commandLine->setFocus();
-    m_commandLine->setText(":");
-    m_commandLine->setCursorPosition(1);
+    enterCommandLine();
   });
 
   auto *openProjectShortcut = new QShortcut(QKeySequence("Ctrl+o"), this);
@@ -215,6 +211,20 @@ void MainWindow::updateTabBar() {
   }
 }
 
+void MainWindow::setupCommandHandlers() {
+  m_commandHandlers["new"] = [this](const QString &args) { newProject(args); };
+  m_commandHandlers["title"] = [this](const QString &args) {
+    setCurrentTitle(args);
+  };
+  m_commandHandlers["open"] = [this](const QString &args) {
+    if (args.isEmpty()) {
+      showProjectBrowser();
+    } else {
+      openProject(args);
+    }
+  };
+}
+
 void MainWindow::createCommandBar() {
   auto *commandWidget = new QWidget(this);
   auto *layout = new QHBoxLayout(commandWidget);
@@ -274,18 +284,23 @@ void MainWindow::executeCommand() {
     args = input.mid(firstSpace + 1).trimmed();
   }
 
-  if (cmd == "new") {
-    newProject(args);
-  } else if (cmd == "open") {
-    if (args.isEmpty()) {
-      showProjectBrowser();
-    } else {
-      openProject(args);
-    }
-  } else if (cmd == "title") {
-    setCurrentTitle(args);
+  auto it = m_commandHandlers.find(cmd);
+  if (it != m_commandHandlers.end()) {
+    it.value()(args);
   }
   m_commandLine->clear();
+}
+
+void MainWindow::enterCommandLine() {
+  m_commandLine->setFocus();
+  m_commandLine->setText(":");
+  m_commandLine->setCursorPosition(1);
+}
+
+void MainWindow::exitCommadLine() {
+  m_commandLine->clear();
+  m_commandLine->setPlaceholderText("Ctrl+/ to focus");
+  m_textEdit->setFocus();
 }
 
 void MainWindow::createProjectList() {
@@ -729,12 +744,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
   if (obj == m_commandLine && event->type() == QEvent::KeyPress) {
     auto *keyEvent = static_cast<QKeyEvent *>(event);
     if (keyEvent->key() == Qt::Key_Escape) {
-      m_commandLine->clear();
-      m_commandLine->setPlaceholderText("Ctrl+/ to focus");
-
-      if (m_textEdit) {
-        m_textEdit->setFocus();
-      }
+      exitCommadLine();
       return true;
     }
   }
