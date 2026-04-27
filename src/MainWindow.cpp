@@ -89,7 +89,7 @@ void MainWindow::createTextEditor() {
 
   m_textEdit = new Editor(m_editorView);
   m_textEdit->setAcceptRichText(true);
-  m_textEdit->setFontPointSize(12);
+  //  m_textEdit->setFontPointSize(12);
   m_textEdit->installEventFilter(this);
 
   m_saveTimer = new QTimer(this);
@@ -242,7 +242,7 @@ void MainWindow::createCommandBar() {
       " color: #CDD6F4;"
       " border: none;"
       " padding: 4px 6px;"
-      " font-family: 'JetBrainsMono Nerd Font', monospace;"
+      " font-family: 'JetBrainsMonoNL Nerd Font', monospace;"
       "}");
 
   layout->addWidget(m_commandLine, 1);
@@ -402,7 +402,7 @@ void MainWindow::applyColor(StickieColor color) {
               " color: %2;"
               " border: none;"
               " padding: 4px 6px;"
-              " font-family: 'JetBrainsMono Nerd Font', monospace;"
+              " font-family: 'JetBrainsMonoNL Nerd Font', monospace;"
               "}")
           .arg(bgColor, textColorDark);
   m_commandLine->setStyleSheet(cmd_style);
@@ -655,7 +655,7 @@ void MainWindow::showProjectBrowser() {
       color: #CDD6F4;
       border: none;
       padding: 3px;
-      font-family: 'JetBrainsMono Nerd Font', monospace;
+      font-family: 'JetBrainsMonoNL Nerd Font', monospace;
     }
     QListWidget::item {
       padding: 4px 6px;
