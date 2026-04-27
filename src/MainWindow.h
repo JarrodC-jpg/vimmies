@@ -1,4 +1,5 @@
 #pragma once
+#include "Editor.h"
 #include <QCloseEvent>
 #include <QLineEdit>
 #include <QListWidget>
@@ -71,7 +72,7 @@ private:
   QListWidget *m_projectList = nullptr;
   QWidget *m_editorView = nullptr;
 
-  QTextEdit *m_textEdit = nullptr;
+  Editor *m_textEdit = nullptr;
   StickieColor m_currentColor = StickieColor::Yellow;
 
   QLineEdit *m_commandLine = nullptr;

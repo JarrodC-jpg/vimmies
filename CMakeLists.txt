@@ -18,6 +18,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_executable(Stickies
   src/main.cpp
   src/MainWindow.cpp
+  src/Editor.cpp
 )
 
 target_link_libraries(Stickies PRIVATE Qt6::Core Qt6::Widgets)

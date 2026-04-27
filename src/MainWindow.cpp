@@ -87,7 +87,7 @@ void MainWindow::createTextEditor() {
   layout->setContentsMargins(3, 0, 3, 0);
   layout->setSpacing(0);
 
-  m_textEdit = new QTextEdit(m_editorView);
+  m_textEdit = new Editor(m_editorView);
   m_textEdit->setAcceptRichText(true);
   m_textEdit->setFontPointSize(12);
   m_textEdit->installEventFilter(this);
