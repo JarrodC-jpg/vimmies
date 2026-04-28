@@ -35,7 +35,21 @@ Editor::Editor(QWidget *parent) : QTextEdit(parent) {
   connect(this, &QTextEdit::textChanged, this,
           [this]() { m_lineNumberArea->update(); });
 
+  connect(this, &QTextEdit::cursorPositionChanged, this,
+          [this]() { m_lineNumberArea->update(); });
+
   updateLineNumberAreaWidth(0);
+}
+
+void Editor::setAppFont(const QString &family, int size) {
+  m_fontFamily = family;
+  m_fontSize = size;
+
+  QFont f(family, size);
+  f.setStyleHint(QFont::Monospace);
+  setFont(f);
+
+  m_lineNumberArea->update();
 }
 
 int Editor::lineNumberAreaWidth() const {
@@ -75,10 +89,11 @@ void Editor::lineNumberAreaPaintEvent(QPaintEvent *event) {
   QPainter painter(m_lineNumberArea);
   painter.fillRect(event->rect(), QColor("#1e1e2e"));
 
-  QFont gutterFont("JetBrainsMonoNL Nerd Font", 12);
+  QFont gutterFont(m_fontFamily, m_fontSize);
   gutterFont.setStyleHint(QFont::Monospace);
   painter.setFont(gutterFont);
 
+  int currentLine = textCursor().blockNumber();
   QTextBlock block = document()->begin();
   int blockNumber = 0;
   int top, bottom;
@@ -90,9 +105,16 @@ void Editor::lineNumberAreaPaintEvent(QPaintEvent *event) {
     bottom = top + qRound(blockRect.height());
 
     if (top <= event->rect().bottom() && bottom >= event->rect().top()) {
-      QString number = QString::number(blockNumber + 1);
+      QString number;
 
-      painter.setPen(QColor("#6c7086"));
+      if (blockNumber == currentLine) {
+        number = QString::number(blockNumber + 1);
+        painter.setPen(QColor("#cdd6f4"));
+      } else {
+        number = QString::number(qAbs(blockNumber - currentLine));
+        painter.setPen(QColor("#6c7086"));
+      }
+
       painter.drawText(0, top, m_lineNumberArea->width() - 4,
                        fontMetrics().height(), Qt::AlignRight, number);
     }

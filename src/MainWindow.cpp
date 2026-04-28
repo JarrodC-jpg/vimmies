@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "ModeIndicator.h"
 #include <QAction>
 #include <QDir>
 #include <QEvent>
@@ -17,11 +18,15 @@
 #include <QVBoxLayout>
 #include <qcoreevent.h>
 #include <qdir.h>
+#include <qlabel.h>
 #include <qlogging.h>
 #include <qnamespace.h>
 #include <qobject.h>
+#include <qsettings.h>
+#include <set>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+  loadAppSettings();
   qDebug() << "Welcome to vimies, notes with vim-like motions!";
   setWindowTitle("Stickies");
   setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
@@ -34,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   createCommandBar();
   createTabBar();
   setupCommandHandlers();
+  updateModeIndicator();
 
   m_defaultSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -69,6 +75,18 @@ MainWindow::~MainWindow() {
   saveToDisk();
 }
 
+void MainWindow::loadAppSettings() {
+  QSettings settings("stickies.conf", QSettings::IniFormat);
+  m_fontFamily = settings.value("fontFamily", m_fontFamily).toString();
+  m_fontSize = settings.value("fontSize", m_fontSize).toInt();
+}
+
+void MainWindow::updateModeIndicator() {
+  if (m_modeIndicator) {
+    m_modeIndicator->setMode(m_mode);
+  }
+}
+
 void MainWindow::createMainContainer() {
   m_stackedWidget = new QStackedWidget(this);
   auto *mainContainer = new QWidget(this);
@@ -88,8 +106,8 @@ void MainWindow::createTextEditor() {
   layout->setSpacing(0);
 
   m_textEdit = new Editor(m_editorView);
+  m_textEdit->setAppFont(m_fontFamily, m_fontSize);
   m_textEdit->setAcceptRichText(true);
-  //  m_textEdit->setFontPointSize(12);
   m_textEdit->installEventFilter(this);
 
   m_saveTimer = new QTimer(this);
@@ -231,19 +249,32 @@ void MainWindow::createCommandBar() {
   layout->setContentsMargins(3, 0, 3, 3);
   layout->setSpacing(0);
 
+  m_modeIndicator = new ModeIndicator(commandWidget);
+  layout->addWidget(m_modeIndicator);
+
+  auto *promptLabel = new QLabel("$", commandWidget);
+  promptLabel->setStyleSheet("QLabel { color: #c3e88d;"
+                             "font-family; '" +
+                             m_fontFamily +
+                             "'"
+                             " padding: 0 4px;"
+                             " background-color: #1a1b26; }");
+  layout->addWidget(promptLabel);
+
   // QLabel *label = new QLabel("Command:", commandWidget);
   m_commandLine = new QLineEdit(commandWidget);
   m_commandLine->installEventFilter(this);
   m_commandLine->setPlaceholderText("Ctrl+/ to focus");
 
-  m_commandLine->setStyleSheet(
-      "QLineEdit {"
-      " background-color: #1e1e2e;"
-      " color: #CDD6F4;"
-      " border: none;"
-      " padding: 4px 6px;"
-      " font-family: 'JetBrainsMonoNL Nerd Font', monospace;"
-      "}");
+  m_commandLine->setStyleSheet("QLineEdit {"
+                               " background-color: #1e1e2e;"
+                               " color: #CDD6F4;"
+                               " border: none;"
+                               " padding: 4px 4px;"
+                               " font-family: '" +
+                               m_fontFamily +
+                               "', monospace;"
+                               "}");
 
   layout->addWidget(m_commandLine, 1);
 
@@ -344,10 +375,11 @@ void MainWindow::resetAllData() {
 
 void MainWindow::restoreFontSettings() {
   QFont font = m_textEdit->font();
-  if (font.pointSize() != 12) {
-    font.setPointSize(12);
+  if (font.pointSize() != m_fontSize) {
+    font.setPointSize(m_fontSize);
     m_textEdit->setFont(font);
   }
+  qDebug() << m_fontSize;
 }
 
 void MainWindow::applyColor(StickieColor color) {
@@ -396,15 +428,14 @@ void MainWindow::applyColor(StickieColor color) {
   m_textEdit->setStyleSheet(style);
   // setStyleSheet(style);
 
-  QString cmd_style =
-      QString("QLineEdit {"
-              " background-color: %1;"
-              " color: %2;"
-              " border: none;"
-              " padding: 4px 6px;"
-              " font-family: 'JetBrainsMonoNL Nerd Font', monospace;"
-              "}")
-          .arg(bgColor, textColorDark);
+  QString cmd_style = QString("QLineEdit {"
+                              " background-color: %1;"
+                              " color: %2;"
+                              " border: none;"
+                              " padding: 4px 6px;"
+                              " font-family: '%3', monospace;"
+                              "}")
+                          .arg(bgColor, textColorDark, m_fontFamily);
   m_commandLine->setStyleSheet(cmd_style);
 
   QString windowStyle =
@@ -649,26 +680,25 @@ void MainWindow::showProjectBrowser() {
   }
   m_projectList->setFocus();
 
-  m_projectList->setStyleSheet(R"(
-    QListWidget {
-      background-color: #1e1e2e;
-      color: #CDD6F4;
-      border: none;
-      padding: 3px;
-      font-family: 'JetBrainsMonoNL Nerd Font', monospace;
-    }
-    QListWidget::item {
-      padding: 4px 6px;
-    }
-    QListWidget::item:selected {
-      background-color: #3a3a3a !important;
-      color: #ffffff !important;
-      font-weight: bold;
-    }
-    QListWidget::item:hover:!selected {
-            background-color: #2a2a3a !important;
-    }
-  )");
+  m_projectList->setStyleSheet(QString("QListWidget {"
+                                       " background-color: #1e1e2e;"
+                                       " color: #CDD6F4;"
+                                       " border: none;"
+                                       " padding: 3px;"
+                                       " font-family: '%1', monospace;"
+                                       "}"
+                                       "QListWidget::item {"
+                                       "  padding: 4px 6px;"
+                                       "}"
+                                       "QListWidget::item:selected {"
+                                       "  background-color: #3a3a3a;"
+                                       "  color: #ffffff;"
+                                       "  font-weight: bold;"
+                                       "}"
+                                       "QListWidget::item:hover:!selected {"
+                                       "        background-color: #2a2a3a;"
+                                       "}")
+                                   .arg(m_fontFamily));
 
   m_projectList->clear();
   QDir dir(m_defaultSaveDir);
@@ -715,6 +745,24 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
       StickieColor newColor = static_cast<StickieColor>(key - Qt::Key_1);
       applyColor(newColor);
       return true;
+    }
+
+    if (m_mode == Mode::Normal) {
+      if (key == Qt::Key_I) {
+        m_mode = Mode::Insert;
+        updateModeIndicator();
+        return true;
+      }
+      return true;
+    }
+
+    if (m_mode == Mode::Insert) {
+      if (key == Qt::Key_Escape) {
+        m_mode = Mode::Normal;
+        updateModeIndicator();
+        return true;
+      }
+      // All other keys in Insert mode: QTextEdit handles that.
     }
   }
 

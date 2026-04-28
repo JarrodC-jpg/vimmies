@@ -1,5 +1,6 @@
 #pragma once
 #include "Editor.h"
+#include "ModeIndicator.h"
 #include <QCloseEvent>
 #include <QLineEdit>
 #include <QListWidget>
@@ -36,6 +37,8 @@ private:
   void setupCommandHandlers();
 
   // Action Functions
+  void loadAppSettings();
+  void updateModeIndicator();
   void executeCommand();
   void enterCommandLine();
   void exitCommandLine();
@@ -76,6 +79,7 @@ private:
   StickieColor m_currentColor = StickieColor::Yellow;
 
   QLineEdit *m_commandLine = nullptr;
+  ModeIndicator *m_modeIndicator = nullptr;
   using CommandHandler = std::function<void(const QString &)>;
   QMap<QString, CommandHandler> m_commandHandlers;
 
@@ -86,4 +90,6 @@ private:
   std::map<StickieColor, int> m_scrollPositions;
   QString m_projectFilePath = "empty.vmi";
   QString m_defaultSaveDir;
+  QString m_fontFamily = "JetBrainsMono Nl Nerd Font";
+  int m_fontSize = 11;
 };

@@ -19,6 +19,7 @@ add_executable(Stickies
   src/main.cpp
   src/MainWindow.cpp
   src/Editor.cpp
+  src/ModeIndicator.cpp
 )
 
 target_link_libraries(Stickies PRIVATE Qt6::Core Qt6::Widgets)

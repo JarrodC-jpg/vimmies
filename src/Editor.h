@@ -3,6 +3,7 @@
 #include <QTextEdit>
 #include <QWidget>
 #include <qevent.h>
+#include <qobject.h>
 #include <qsizepolicy.h>
 #include <qtextedit.h>
 #include <qtmetamacros.h>
@@ -20,6 +21,8 @@ public:
 
   void lineNumberAreaPaintEvent(QPaintEvent *event);
 
+  void setAppFont(const QString &family, int size);
+
 protected:
   void resizeEvent(QResizeEvent *event) override;
 
@@ -29,6 +32,8 @@ private slots:
 
 private:
   LineNumberArea *m_lineNumberArea = nullptr;
+  QString m_fontFamily = "JetBrainsMono NL Nerd Font";
+  int m_fontSize = 11;
 };
 
 class LineNumberArea : public QWidget {
