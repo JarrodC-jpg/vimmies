@@ -4,11 +4,14 @@
 #include <QPainter>
 #include <qcolor.h>
 #include <qfont.h>
+#include <qfontmetrics.h>
+#include <qlogging.h>
 #include <qnamespace.h>
 #include <qobject.h>
 #include <qpainter.h>
 #include <qsize.h>
 #include <qsizepolicy.h>
+#include <qtypes.h>
 #include <qwidget.h>
 
 ModeIndicator::ModeIndicator(QWidget *parent)
@@ -24,15 +27,15 @@ void ModeIndicator::setAppFont(const QString &family, int size) {
   m_fontSize = size;
   update();
 }
-QSize ModeIndicator::sizeHint() const { return QSize(90, 24); }
+QSize ModeIndicator::sizeHint() const { return QSize(80, 20); }
 QColor ModeIndicator::modeColor() const {
   switch (m_mode) {
   case Mode::Normal:
-    return QColor("#7aa2f7");
+    return QColor("#82aaff");
   case Mode::Insert:
-    return QColor("#9ece6a");
+    return QColor("#c3e88d");
   }
-  return QColor("#7aa2f7");
+  return QColor("#82aaff");
 }
 void ModeIndicator::paintEvent(QPaintEvent *) {
   QPainter p(this);
@@ -40,22 +43,25 @@ void ModeIndicator::paintEvent(QPaintEvent *) {
 
   QColor bg = modeColor();
   QColor dark("#1a1b26");
+  QColor arrowBg("#1e2030");
 
   int arrowWidth = 12;
   int labelWidth = width() - arrowWidth;
 
   p.fillRect(0, 0, labelWidth, height(), bg);
 
-  p.fillRect(labelWidth, 0, arrowWidth, height(), dark);
+  p.fillRect(labelWidth, 0, arrowWidth, height(), arrowBg);
 
   QFont arrowFont(m_fontFamily, m_fontSize + 3);
   p.setFont(arrowFont);
   p.setPen(bg);
+
   p.drawText(labelWidth - 2, 0, arrowWidth + 2, height(),
              Qt::AlignVCenter | Qt::AlignLeft, QString(QChar(0xe0b0)));
 
-  QFont labelFont(m_fontFamily, m_fontSize - 1);
-  labelFont.setBold(true);
+  QFont labelFont(m_fontFamily, m_fontSize);
+  labelFont.setWeight(QFont::Light);
+  labelFont.setPixelSize(m_fontSize + 3);
   p.setFont(labelFont);
   p.setPen(dark);
 
@@ -68,6 +74,9 @@ void ModeIndicator::paintEvent(QPaintEvent *) {
     label = "INSERT";
     break;
   }
-  p.drawText(0, 0, labelWidth - 4, height(),
-             Qt::AlignVCenter | Qt::AlignHCenter, label);
+  QFontMetrics fm(labelFont);
+  int textY = (height() + fm.ascent() - fm.descent()) / 2;
+  p.drawText(10, textY, label);
+  // p.drawText(0, 0, labelWidth, height(), Qt::AlignVCenter | Qt::AlignHCenter,
+  //            label);
 }

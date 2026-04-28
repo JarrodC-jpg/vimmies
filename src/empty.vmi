@@ -1,18 +1,33 @@
 {
-    "0": "",
-    "1": "",
+    "0": "Bg-Color - #222436\nCurrLineBgColor - #2f334d\nCurrLineNumColor - #e88864\nCmdBar Bg-Color - #1e2030\nCmdPrompt Bg-Color - #3b4261\nInsert Mode Color - #c3e88d\nNormal Mode Color - #82aaff",
+    "1": "asdfsdfsasdffsaasdffdsasdfdfdsasddsfasdf\nsdfas\nasdfsfdsfasdf\nfdafsasdfdsaasdfdsasdffdsasdfdsasdffdsa",
     "2": "",
     "3": "",
     "4": "",
     "5": "",
     "cursorPos": {
-        "0": 0
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
     },
     "lastColor": 0,
     "scrollPos": {
-        "0": 0
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
     },
     "titles": {
-        "0": ""
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": ""
     }
 }

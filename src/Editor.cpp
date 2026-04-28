@@ -87,7 +87,7 @@ void Editor::resizeEvent(QResizeEvent *event) {
 
 void Editor::lineNumberAreaPaintEvent(QPaintEvent *event) {
   QPainter painter(m_lineNumberArea);
-  painter.fillRect(event->rect(), QColor("#1e1e2e"));
+  painter.fillRect(event->rect(), QColor("#222436"));
 
   QFont gutterFont(m_fontFamily, m_fontSize);
   gutterFont.setStyleHint(QFont::Monospace);
@@ -109,7 +109,7 @@ void Editor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 
       if (blockNumber == currentLine) {
         number = QString::number(blockNumber + 1);
-        painter.setPen(QColor("#cdd6f4"));
+        painter.setPen(QColor("#e88864"));
       } else {
         number = QString::number(qAbs(blockNumber - currentLine));
         painter.setPen(QColor("#6c7086"));

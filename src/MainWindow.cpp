@@ -102,7 +102,7 @@ void MainWindow::createMainContainer() {
 void MainWindow::createTextEditor() {
   m_editorView = new QWidget();
   auto *layout = new QVBoxLayout(m_editorView);
-  layout->setContentsMargins(3, 0, 3, 0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   m_textEdit = new Editor(m_editorView);
@@ -129,7 +129,7 @@ void MainWindow::createTextEditor() {
 void MainWindow::createTabBar() {
   m_tabBar = new QWidget(this);
   auto *layout = new QHBoxLayout(m_tabBar);
-  layout->setContentsMargins(3, 3, 3, 0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   m_tabs.clear();
@@ -245,8 +245,9 @@ void MainWindow::setupCommandHandlers() {
 
 void MainWindow::createCommandBar() {
   auto *commandWidget = new QWidget(this);
+  commandWidget->setFixedHeight(20);
   auto *layout = new QHBoxLayout(commandWidget);
-  layout->setContentsMargins(3, 0, 3, 3);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   m_modeIndicator = new ModeIndicator(commandWidget);
@@ -254,11 +255,11 @@ void MainWindow::createCommandBar() {
 
   auto *promptLabel = new QLabel("$", commandWidget);
   promptLabel->setStyleSheet("QLabel { color: #c3e88d;"
-                             "font-family; '" +
+                             "font-family: '" +
                              m_fontFamily +
-                             "'"
-                             " padding: 0 4px;"
-                             " background-color: #1a1b26; }");
+                             "';"
+                             " padding: 0 0px;"
+                             " background-color: #1e2030; }");
   layout->addWidget(promptLabel);
 
   // QLabel *label = new QLabel("Command:", commandWidget);
@@ -267,10 +268,10 @@ void MainWindow::createCommandBar() {
   m_commandLine->setPlaceholderText("Ctrl+/ to focus");
 
   m_commandLine->setStyleSheet("QLineEdit {"
-                               " background-color: #1e1e2e;"
+                               " background-color: #1e2030;"
                                " color: #CDD6F4;"
                                " border: none;"
-                               " padding: 4px 4px;"
+                               " padding: 0px 0px;"
                                " font-family: '" +
                                m_fontFamily +
                                "', monospace;"
@@ -339,7 +340,7 @@ void MainWindow::createProjectList() {
   m_projectList = new QListWidget();
   m_projectList->setAlternatingRowColors(true);
   QPalette palette = m_projectList->palette();
-  palette.setColor(QPalette::Base, QColor("#1e1e2e"));
+  palette.setColor(QPalette::Base, QColor("#222436"));
   palette.setColor(QPalette::AlternateBase, QColor("#181825"));
   palette.setColor(QPalette::Text, QColor("#CDD6F4"));
   m_projectList->setPalette(palette);
@@ -379,7 +380,6 @@ void MainWindow::restoreFontSettings() {
     font.setPointSize(m_fontSize);
     m_textEdit->setFont(font);
   }
-  qDebug() << m_fontSize;
 }
 
 void MainWindow::applyColor(StickieColor color) {
@@ -388,9 +388,9 @@ void MainWindow::applyColor(StickieColor color) {
   m_currentColor = color;
   loadTextForColor(color);
 
-  QString bgColor = "#1E1E2E";
-  QString textColor = "#1E1E2E";
-  QString textColorDark = "#1E1E2E";
+  QString bgColor = "#222436";
+  QString textColor = "#222436";
+  QString textColorDark = "#222436";
 
   switch (color) {
 
@@ -421,10 +421,9 @@ void MainWindow::applyColor(StickieColor color) {
   }
   }
   updateTabBar();
-  QString style =
-      QString("QTextEdit {background-color: %1; color: %2; border: "
-              "none; border-bottom: 1px solid %2; border-top: 3px solid %2;}")
-          .arg(bgColor, textColor);
+  QString style = QString("QTextEdit {background-color: %1; color: %2; border: "
+                          "none; border-top: 0px solid %2;}")
+                      .arg(bgColor, textColor);
   m_textEdit->setStyleSheet(style);
   // setStyleSheet(style);
 
@@ -432,10 +431,10 @@ void MainWindow::applyColor(StickieColor color) {
                               " background-color: %1;"
                               " color: %2;"
                               " border: none;"
-                              " padding: 4px 6px;"
+                              " padding: 4px 4px;"
                               " font-family: '%3', monospace;"
                               "}")
-                          .arg(bgColor, textColorDark, m_fontFamily);
+                          .arg("#1e2030", textColorDark, m_fontFamily);
   m_commandLine->setStyleSheet(cmd_style);
 
   QString windowStyle =
@@ -681,7 +680,7 @@ void MainWindow::showProjectBrowser() {
   m_projectList->setFocus();
 
   m_projectList->setStyleSheet(QString("QListWidget {"
-                                       " background-color: #1e1e2e;"
+                                       " background-color: #222436;"
                                        " color: #CDD6F4;"
                                        " border: none;"
                                        " padding: 3px;"
