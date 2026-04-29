@@ -20,6 +20,8 @@ add_executable(Stickies
   src/MainWindow.cpp
   src/Editor.cpp
   src/ModeIndicator.cpp
+  src/CommandModule.cpp
+  src/CommandModule.cpp
 )
 
 target_link_libraries(Stickies PRIVATE Qt6::Core Qt6::Widgets)

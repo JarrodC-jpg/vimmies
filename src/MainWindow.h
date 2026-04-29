@@ -1,4 +1,5 @@
 #pragma once
+#include "CommandModule.h"
 #include "Editor.h"
 #include "ModeIndicator.h"
 #include <QCloseEvent>
@@ -80,6 +81,7 @@ private:
 
   QLineEdit *m_commandLine = nullptr;
   ModeIndicator *m_modeIndicator = nullptr;
+  CommandModule *m_commandModule = nullptr;
   using CommandHandler = std::function<void(const QString &)>;
   QMap<QString, CommandHandler> m_commandHandlers;
 

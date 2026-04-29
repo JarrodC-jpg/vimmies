@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "CommandModule.h"
 #include "ModeIndicator.h"
 #include <QAction>
 #include <QDir>
@@ -50,11 +51,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   applyColor(m_currentColor);
 
   new QShortcut(QKeySequence("Ctrl+/"), this, [this]() {
-    if (!m_commandLine || !m_textEdit) {
+    if (!m_commandModule || !m_textEdit) {
       return;
     }
 
-    if (m_commandLine->hasFocus()) {
+    if (m_commandModule->isActive()) {
       exitCommandLine();
       return;
     }
@@ -253,31 +254,9 @@ void MainWindow::createCommandBar() {
   m_modeIndicator = new ModeIndicator(commandWidget);
   layout->addWidget(m_modeIndicator);
 
-  auto *promptLabel = new QLabel("$", commandWidget);
-  promptLabel->setStyleSheet("QLabel { color: #c3e88d;"
-                             "font-family: '" +
-                             m_fontFamily +
-                             "';"
-                             " padding: 0 0px;"
-                             " background-color: #1e2030; }");
-  layout->addWidget(promptLabel);
-
-  // QLabel *label = new QLabel("Command:", commandWidget);
-  m_commandLine = new QLineEdit(commandWidget);
-  m_commandLine->installEventFilter(this);
-  m_commandLine->setPlaceholderText("Ctrl+/ to focus");
-
-  m_commandLine->setStyleSheet("QLineEdit {"
-                               " background-color: #1e2030;"
-                               " color: #CDD6F4;"
-                               " border: none;"
-                               " padding: 0px 0px;"
-                               " font-family: '" +
-                               m_fontFamily +
-                               "', monospace;"
-                               "}");
-
-  layout->addWidget(m_commandLine, 1);
+  m_commandModule = new CommandModule(commandWidget);
+  m_commandModule->setAppFont(m_fontFamily, m_fontSize);
+  layout->addWidget(m_commandModule);
 
   auto *mainContainer = qobject_cast<QWidget *>(centralWidget());
   if (mainContainer && mainContainer->layout()) {
@@ -286,9 +265,6 @@ void MainWindow::createCommandBar() {
       vbox->addWidget(commandWidget);
     }
   }
-
-  connect(m_commandLine, &QLineEdit::returnPressed, this,
-          &MainWindow::executeCommand);
 }
 
 void MainWindow::executeCommand() {
@@ -323,15 +299,10 @@ void MainWindow::executeCommand() {
   m_commandLine->clear();
 }
 
-void MainWindow::enterCommandLine() {
-  m_commandLine->setFocus();
-  m_commandLine->setText(":");
-  m_commandLine->setCursorPosition(1);
-}
+void MainWindow::enterCommandLine() { m_commandModule->activate(); }
 
 void MainWindow::exitCommandLine() {
-  m_commandLine->clear();
-  m_commandLine->setPlaceholderText("Ctrl+/ to focus");
+  m_commandModule->deactivate();
   m_textEdit->setFocus();
 }
 
@@ -426,16 +397,6 @@ void MainWindow::applyColor(StickieColor color) {
                       .arg(bgColor, textColor);
   m_textEdit->setStyleSheet(style);
   // setStyleSheet(style);
-
-  QString cmd_style = QString("QLineEdit {"
-                              " background-color: %1;"
-                              " color: %2;"
-                              " border: none;"
-                              " padding: 4px 4px;"
-                              " font-family: '%3', monospace;"
-                              "}")
-                          .arg("#1e2030", textColorDark, m_fontFamily);
-  m_commandLine->setStyleSheet(cmd_style);
 
   QString windowStyle =
       QString("QMainWindow {background-color: %1; border: 3px solid %1;}")
