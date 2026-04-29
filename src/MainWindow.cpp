@@ -265,15 +265,18 @@ void MainWindow::createCommandBar() {
       vbox->addWidget(commandWidget);
     }
   }
+  connect(m_commandModule, &CommandModule::commandSubmitted, this,
+          &MainWindow::executeCommand);
 }
 
 void MainWindow::executeCommand() {
-  QString input = m_commandLine->text().trimmed();
+  QString input = m_commandModule->text().trimmed();
   if (input.isEmpty())
     return;
 
   if (!input.startsWith(':')) {
-    m_commandLine->clear();
+    m_commandModule->deactivate();
+    m_textEdit->setFocus();
     return;
   }
 
@@ -296,7 +299,8 @@ void MainWindow::executeCommand() {
   if (it != m_commandHandlers.end()) {
     it.value()(args);
   }
-  m_commandLine->clear();
+  m_commandModule->deactivate();
+  m_textEdit->setFocus();
 }
 
 void MainWindow::enterCommandLine() { m_commandModule->activate(); }
@@ -749,13 +753,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     }
   }
 
-  if (obj == m_commandLine && event->type() == QEvent::KeyPress) {
-    auto *keyEvent = static_cast<QKeyEvent *>(event);
-    if (keyEvent->key() == Qt::Key_Escape) {
-      exitCommandLine();
-      return true;
-    }
-  }
   return QMainWindow::eventFilter(obj, event);
 }
 

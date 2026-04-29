@@ -30,6 +30,9 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
                             "}");
 
   layout->addWidget(m_lineEdit);
+
+  connect(m_lineEdit, &QLineEdit::returnPressed, this,
+          [this]() { emit commandSubmitted(); });
 }
 
 void CommandModule::setAppFont(const QString &family, int size) {
@@ -56,6 +59,8 @@ void CommandModule::deactivate() {
 }
 
 bool CommandModule::isActive() const { return m_lineEdit->hasFocus(); }
+
+QString CommandModule::text() const { return m_lineEdit->text(); }
 
 QSize CommandModule::sizeHint() const {
   QFont f(m_fontFamily);

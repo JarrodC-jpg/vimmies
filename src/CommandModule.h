@@ -19,12 +19,13 @@ public:
   void deactivate();
 
   bool isActive() const;
+  QString text() const;
 
   QLineEdit *lineEdit() const { return m_lineEdit; }
   QSize sizeHint() const override;
 
 signals:
-  void commandSubmitted(const QString &text);
+  void commandSubmitted();
   void deactivated();
 
 protected:
