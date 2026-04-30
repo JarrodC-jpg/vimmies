@@ -16,7 +16,7 @@
 
 ModeIndicator::ModeIndicator(QWidget *parent)
     : QWidget(parent), m_mode(Mode::Normal) {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 void ModeIndicator::setMode(Mode mode) {
   m_mode = mode;
@@ -43,7 +43,7 @@ void ModeIndicator::paintEvent(QPaintEvent *) {
 
   QColor bg = modeColor();
   QColor dark("#1a1b26");
-  QColor arrowBg("#1e2030");
+  QColor arrowBg("#3b4261");
 
   int arrowWidth = 12;
   int labelWidth = width() - arrowWidth;

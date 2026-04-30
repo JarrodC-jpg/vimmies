@@ -38,6 +38,10 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
           [this]() { emit commandSubmitted(); });
 
   m_lineEdit->installEventFilter(this);
+  connect(m_lineEdit, &QLineEdit::textChanged, this, [this]() {
+    updateGeometry();
+    update();
+  });
 }
 
 void CommandModule::setAppFont(const QString &family, int size) {
@@ -82,7 +86,7 @@ QSize CommandModule::sizeHint() const {
   int total =
       k_promptWidth + 8 + qMax(textWidth, k_minTextWidth) + k_arrowWidth;
 
-  return QSize(total, height());
+  return QSize(total, 20);
 }
 
 void CommandModule::paintEvent(QPaintEvent *) {
@@ -94,17 +98,24 @@ void CommandModule::paintEvent(QPaintEvent *) {
   QColor promptColor("#c3e88d");
 
   p.fillRect(0, 0, width() - k_arrowWidth, height(), bg);
-  qDebug() << width();
 
-  //  QFont promptFont(m_fontFamily);
-  //  promptFont.setPixelSize(m_fontSize);
-  //  p.setFont(promptFont);
-  // p.setPen(promptColor);
+  QFont promptFont(m_fontFamily);
+  promptFont.setPixelSize(m_fontSize);
+  p.setFont(promptFont);
+  p.setPen(promptColor);
+  QFontMetrics fm(promptFont);
+  int y = (height() + fm.ascent() - fm.descent()) / 2;
+  p.drawText(6, y, "$");
 
-  //  QFontMetrics fm(promptFont);
-  //  int y = (height() + fm.ascent() - fm.descent()) / 2;
-
-  //  p.drawText(6, y, "$");
+  int rightArrowX = width() - k_arrowWidth;
+  //  p.fillRect(rightArrowX, 0, k_arrowWidth, height(), dark);
+  QFont arrowFont(m_fontFamily, m_fontSize + 3);
+  //  arrowFont.setPixelSize(m_fontSize + 5);
+  QFontMetrics afm(arrowFont);
+  int arrowY = (height() + afm.ascent() - afm.descent()) / 2;
+  p.setFont(arrowFont);
+  p.setPen(bg);
+  p.drawText(rightArrowX - 1, arrowY, QString(QChar(0xe0b0)));
 }
 
 bool CommandModule::eventFilter(QObject *obj, QEvent *event) {

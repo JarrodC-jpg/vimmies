@@ -258,6 +258,8 @@ void MainWindow::createCommandBar() {
   m_commandModule->setAppFont(m_fontFamily, m_fontSize);
   layout->addWidget(m_commandModule);
 
+  layout->addStretch(1);
+
   auto *mainContainer = qobject_cast<QWidget *>(centralWidget());
   if (mainContainer && mainContainer->layout()) {
     auto *vbox = qobject_cast<QVBoxLayout *>(mainContainer->layout());
