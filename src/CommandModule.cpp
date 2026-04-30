@@ -25,6 +25,7 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
   layout->setSpacing(0);
 
   m_lineEdit = new QLineEdit(this);
+  m_lineEdit->setContentsMargins(0, 0, 0, 0);
   m_lineEdit->setFrame(false);
   m_lineEdit->setStyleSheet("QLineEdit {"
                             " background: transparent;"
@@ -39,6 +40,12 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
 
   m_lineEdit->installEventFilter(this);
   connect(m_lineEdit, &QLineEdit::textChanged, this, [this]() {
+    int textWidth =
+        QFontMetrics(m_lineEdit->font()).horizontalAdvance(m_lineEdit->text()) +
+        4;
+    m_lineEdit->setMinimumWidth(textWidth);
+    m_lineEdit->setMaximumWidth(420);
+    resize(sizeHint());
     updateGeometry();
     update();
   });
@@ -82,9 +89,12 @@ QSize CommandModule::sizeHint() const {
   f.setPixelSize(m_fontSize);
   QFontMetrics fm(f);
 
-  int textWidth = fm.horizontalAdvance(m_lineEdit->text());
+  int textWidth =
+      QFontMetrics(m_lineEdit->font()).horizontalAdvance(m_lineEdit->text()) +
+      2;
   int total =
-      k_promptWidth + 8 + qMax(textWidth, k_minTextWidth) + k_arrowWidth;
+      // k_promptWidth + 8 + qMax(textWidth, k_minTextWidth) + k_arrowWidth;
+      k_promptWidth + 8 + textWidth + k_arrowWidth;
 
   return QSize(total, 20);
 }
