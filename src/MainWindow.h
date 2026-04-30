@@ -3,7 +3,6 @@
 #include "Editor.h"
 #include "ModeIndicator.h"
 #include <QCloseEvent>
-#include <QLineEdit>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QPushButton>
@@ -79,7 +78,6 @@ private:
   Editor *m_textEdit = nullptr;
   StickieColor m_currentColor = StickieColor::Yellow;
 
-  QLineEdit *m_commandLine = nullptr;
   ModeIndicator *m_modeIndicator = nullptr;
   CommandModule *m_commandModule = nullptr;
   using CommandHandler = std::function<void(const QString &)>;

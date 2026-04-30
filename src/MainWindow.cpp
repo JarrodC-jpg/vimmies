@@ -267,6 +267,9 @@ void MainWindow::createCommandBar() {
   }
   connect(m_commandModule, &CommandModule::commandSubmitted, this,
           &MainWindow::executeCommand);
+
+  connect(m_commandModule, &CommandModule::deactivated, this,
+          [this]() { m_stackedWidget->currentWidget()->setFocus(); });
 }
 
 void MainWindow::executeCommand() {
@@ -275,8 +278,7 @@ void MainWindow::executeCommand() {
     return;
 
   if (!input.startsWith(':')) {
-    m_commandModule->deactivate();
-    m_textEdit->setFocus();
+    exitCommandLine();
     return;
   }
 
@@ -299,24 +301,19 @@ void MainWindow::executeCommand() {
   if (it != m_commandHandlers.end()) {
     it.value()(args);
   }
-  m_commandModule->deactivate();
-  m_textEdit->setFocus();
+  exitCommandLine();
 }
 
 void MainWindow::enterCommandLine() { m_commandModule->activate(); }
 
-void MainWindow::exitCommandLine() {
-  m_commandModule->deactivate();
-  m_textEdit->setFocus();
-}
+void MainWindow::exitCommandLine() { m_commandModule->deactivate(); }
 
 void MainWindow::createProjectList() {
 
   m_projectList = new QListWidget();
-  m_projectList->setAlternatingRowColors(true);
+  m_projectList->setAlternatingRowColors(false);
   QPalette palette = m_projectList->palette();
   palette.setColor(QPalette::Base, QColor("#222436"));
-  palette.setColor(QPalette::AlternateBase, QColor("#181825"));
   palette.setColor(QPalette::Text, QColor("#CDD6F4"));
   m_projectList->setPalette(palette);
   connect(m_projectList, &QListWidget::itemDoubleClicked, this,
@@ -328,6 +325,7 @@ void MainWindow::createProjectList() {
 }
 
 void MainWindow::resetAllData() {
+  m_titles.clear();
   m_notes.clear();
   m_cursorPositions.clear();
   m_scrollPositions.clear();
@@ -585,10 +583,9 @@ void MainWindow::newProject(const QString &name) {
 }
 
 void MainWindow::newProjectInsertCmd() {
-  if (m_commandLine) {
-    m_commandLine->setText(":new ");
-    m_commandLine->setFocus();
-    m_commandLine->setCursorPosition(5);
+  if (m_commandModule) {
+    m_commandModule->activate();
+    m_commandModule->setText(":new ");
   }
 }
 
@@ -642,25 +639,26 @@ void MainWindow::showProjectBrowser() {
   if (m_stackedWidget) {
     m_stackedWidget->setCurrentWidget(m_projectList);
   }
-  m_projectList->setFocus();
+  // m_projectList->setFocus();
 
   m_projectList->setStyleSheet(QString("QListWidget {"
                                        " background-color: #222436;"
                                        " color: #CDD6F4;"
                                        " border: none;"
-                                       " padding: 3px;"
+                                       " outline: none;"
+                                       " padding: 0px;"
                                        " font-family: '%1', monospace;"
                                        "}"
                                        "QListWidget::item {"
                                        "  padding: 4px 6px;"
+                                       "  border: none;"
                                        "}"
                                        "QListWidget::item:selected {"
-                                       "  background-color: #3a3a3a;"
-                                       "  color: #ffffff;"
+                                       "  background-color: #2f334d;"
+                                       "  border: none;"
+                                       " outline: none;"
+                                       "  color: #CDD6F4;"
                                        "  font-weight: bold;"
-                                       "}"
-                                       "QListWidget::item:hover:!selected {"
-                                       "        background-color: #2a2a3a;"
                                        "}")
                                    .arg(m_fontFamily));
 
@@ -670,11 +668,11 @@ void MainWindow::showProjectBrowser() {
       dir.entryInfoList(QStringList() << "*.vmi", QDir::Files);
 
   for (const auto &fi : files) {
-    QListWidgetItem *item = new QListWidgetItem(fi.fileName());
+    QListWidgetItem *item = new QListWidgetItem(fi.baseName());
     item->setData(Qt::UserRole, fi.absoluteFilePath());
     m_projectList->addItem(item);
   }
-
+  m_projectList->setCurrentRow(0);
   m_projectList->installEventFilter(this);
 }
 
@@ -733,6 +731,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
   if (obj == m_projectList && event->type() == QEvent::KeyPress) {
     auto *keyEvent = static_cast<QKeyEvent *>(event);
     int key = keyEvent->key();
+    int currRow = m_projectList->currentRow();
+    int rowCount = m_projectList->count();
 
     if (key == Qt::Key_Escape) {
       hideProjectBrowser();
@@ -740,10 +740,16 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     }
 
     if (key == Qt::Key_J) {
-      m_projectList->setCurrentRow(m_projectList->currentRow() + 1);
+      if (++currRow >= rowCount) {
+        currRow = 0;
+      }
+      m_projectList->setCurrentRow(currRow);
     }
     if (key == Qt::Key_K) {
-      m_projectList->setCurrentRow(m_projectList->currentRow() - 1);
+      if (--currRow < 0) {
+        currRow = rowCount - 1;
+      }
+      m_projectList->setCurrentRow(currRow);
     }
     if (key == Qt::Key_Return || key == Qt::Key_Enter) {
       QListWidgetItem *item = m_projectList->currentItem();

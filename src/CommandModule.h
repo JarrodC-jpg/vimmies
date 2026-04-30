@@ -2,6 +2,7 @@
 
 #include <QLineEdit>
 #include <QWidget>
+#include <qcoreevent.h>
 #include <qevent.h>
 #include <qlineedit.h>
 #include <qobject.h>
@@ -20,6 +21,7 @@ public:
 
   bool isActive() const;
   QString text() const;
+  void setText(const QString &text);
 
   QLineEdit *lineEdit() const { return m_lineEdit; }
   QSize sizeHint() const override;
@@ -30,6 +32,7 @@ signals:
 
 protected:
   void paintEvent(QPaintEvent *event) override;
+  bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
   QLineEdit *m_lineEdit = nullptr;
@@ -37,6 +40,6 @@ private:
   int m_fontSize = 11;
 
   static constexpr int k_arrowWidth = 12;
-  static constexpr int k_promptWidth = 20;
-  static constexpr int k_minTextWidth = 40;
+  static constexpr int k_promptWidth = 10;
+  static constexpr int k_minTextWidth = 20;
 };
