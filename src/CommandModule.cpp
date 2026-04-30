@@ -30,10 +30,9 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
   m_lineEdit->setStyleSheet("QLineEdit {"
                             " background: transparent;"
                             " border: none;"
-                            " padding: 0;"
+                            " padding-left: 0;"
                             " color: #c0caf5;"
                             "}");
-
   layout->addWidget(m_lineEdit);
   connect(m_lineEdit, &QLineEdit::returnPressed, this,
           [this]() { emit commandSubmitted(); });
@@ -43,8 +42,12 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
     int textWidth =
         QFontMetrics(m_lineEdit->font()).horizontalAdvance(m_lineEdit->text()) +
         4;
-    m_lineEdit->setMinimumWidth(textWidth);
-    m_lineEdit->setMaximumWidth(420);
+    if (m_lineEdit->hasFocus()) {
+      m_lineEdit->setMinimumWidth(textWidth);
+    } else {
+      qDebug() << "Line edit does not have focus";
+      m_lineEdit->setMinimumWidth(0);
+    }
     resize(sizeHint());
     updateGeometry();
     update();
@@ -56,7 +59,7 @@ void CommandModule::setAppFont(const QString &family, int size) {
   m_fontSize = size;
 
   QFont f(family);
-  f.setPixelSize(size);
+  f.setPixelSize(size + 3);
   m_lineEdit->setFont(f);
 }
 
@@ -92,30 +95,37 @@ QSize CommandModule::sizeHint() const {
   int textWidth =
       QFontMetrics(m_lineEdit->font()).horizontalAdvance(m_lineEdit->text()) +
       2;
-  int total =
-      // k_promptWidth + 8 + qMax(textWidth, k_minTextWidth) + k_arrowWidth;
-      k_promptWidth + 8 + textWidth + k_arrowWidth;
 
+  int total = 0;
+
+  if (m_lineEdit->hasFocus()) {
+    total = k_promptWidth + 8 + qMax(textWidth, k_minTextWidth) + k_arrowWidth;
+  } else {
+    total = k_promptWidth + k_arrowWidth;
+  }
+  // k_promptWidth + 8 + textWidth + k_arrowWidth;
+
+  qDebug() << "Width in sizeEvent" << total;
   return QSize(total, 20);
 }
 
 void CommandModule::paintEvent(QPaintEvent *) {
+  qDebug() << "Width in paintEvent" << width();
   QPainter p(this);
   p.setRenderHint(QPainter::TextAntialiasing);
 
   QColor bg("#3b4261");
   QColor dark("#1e2030");
   QColor promptColor("#c3e88d");
-
   p.fillRect(0, 0, width() - k_arrowWidth, height(), bg);
 
   QFont promptFont(m_fontFamily);
-  promptFont.setPixelSize(m_fontSize);
+  promptFont.setPixelSize(m_fontSize + 3);
   p.setFont(promptFont);
   p.setPen(promptColor);
   QFontMetrics fm(promptFont);
   int y = (height() + fm.ascent() - fm.descent()) / 2;
-  p.drawText(6, y, "$");
+  p.drawText(4, y, "$");
 
   int rightArrowX = width() - k_arrowWidth;
   //  p.fillRect(rightArrowX, 0, k_arrowWidth, height(), dark);
@@ -125,7 +135,7 @@ void CommandModule::paintEvent(QPaintEvent *) {
   int arrowY = (height() + afm.ascent() - afm.descent()) / 2;
   p.setFont(arrowFont);
   p.setPen(bg);
-  p.drawText(rightArrowX - 1, arrowY, QString(QChar(0xe0b0)));
+  p.drawText(rightArrowX, arrowY, QString(QChar(0xe0b0)));
 }
 
 bool CommandModule::eventFilter(QObject *obj, QEvent *event) {

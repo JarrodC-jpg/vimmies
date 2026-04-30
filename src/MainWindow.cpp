@@ -111,6 +111,8 @@ void MainWindow::createTextEditor() {
   m_textEdit->setAcceptRichText(true);
   m_textEdit->installEventFilter(this);
 
+  m_editorView->setFocusProxy(m_textEdit);
+
   m_saveTimer = new QTimer(this);
   m_saveTimer->setSingleShot(true);
   m_saveTimer->setInterval(400);
