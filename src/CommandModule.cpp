@@ -21,7 +21,8 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   auto *layout = new QHBoxLayout(this);
-  layout->setContentsMargins(k_promptWidth + 4, 0, k_arrowWidth + 4, 0);
+  // layout->setContentsMargins(k_promptWidth + 4, 0, k_arrowWidth + 4, 0);
+  layout->setContentsMargins(k_promptWidth + 4, 0, 0, 0);
   layout->setSpacing(0);
 
   m_lineEdit = new QLineEdit(this);
@@ -31,9 +32,11 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
                             " background: transparent;"
                             " border: none;"
                             " padding-left: 0;"
-                            " color: #c0caf5;"
+                            " color: #4fd6be;"
                             "}");
   layout->addWidget(m_lineEdit);
+  resize(sizeHint());
+  updateGeometry();
   connect(m_lineEdit, &QLineEdit::returnPressed, this,
           [this]() { emit commandSubmitted(); });
 
@@ -74,6 +77,10 @@ void CommandModule::deactivate() {
   m_lineEdit->clear();
   m_lineEdit->clearFocus();
   updateGeometry();
+
+  if (parentWidget() && parentWidget()->layout()) {
+    parentWidget()->layout()->activate();
+  }
   emit deactivated();
 }
 
@@ -99,9 +106,10 @@ QSize CommandModule::sizeHint() const {
   int total = 0;
 
   if (m_lineEdit->hasFocus()) {
-    total = k_promptWidth + 8 + qMax(textWidth, k_minTextWidth) + k_arrowWidth;
+    total = k_promptWidth + k_promptPadding + qMax(textWidth, k_minTextWidth) +
+            k_arrowWidth;
   } else {
-    total = k_promptWidth + k_arrowWidth;
+    total = k_promptWidth + k_promptPadding + k_arrowWidth;
   }
   // k_promptWidth + 8 + textWidth + k_arrowWidth;
 
@@ -116,7 +124,7 @@ void CommandModule::paintEvent(QPaintEvent *) {
 
   QColor bg("#3b4261");
   QColor dark("#1e2030");
-  QColor promptColor("#c3e88d");
+  QColor promptColor("#4fd6be");
   p.fillRect(0, 0, width() - k_arrowWidth, height(), bg);
 
   QFont promptFont(m_fontFamily);
@@ -125,7 +133,8 @@ void CommandModule::paintEvent(QPaintEvent *) {
   p.setPen(promptColor);
   QFontMetrics fm(promptFont);
   int y = (height() + fm.ascent() - fm.descent()) / 2;
-  p.drawText(4, y, "$");
+  // p.drawText(4, y, "$");
+  p.drawText(4, y, "");
 
   int rightArrowX = width() - k_arrowWidth;
   //  p.fillRect(rightArrowX, 0, k_arrowWidth, height(), dark);
