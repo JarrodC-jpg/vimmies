@@ -152,7 +152,7 @@ void MainWindow::createTextEditor() {
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
-  m_textEdit = new Editor(m_editorView);
+  m_textEdit = new Editor(m_theme.editor, m_editorView);
   m_textEdit->setAppFont(m_fontFamily, m_fontSize);
   m_textEdit->setAcceptRichText(true);
   m_textEdit->installEventFilter(this);
@@ -288,16 +288,16 @@ void MainWindow::setupCommandHandlers() {
 
 void MainWindow::createCommandBar() {
   auto *commandWidget = new QWidget(this);
-  commandWidget->setFixedHeight(20);
+  //  commandWidget->setFixedHeight(20);
   auto *layout = new QHBoxLayout(commandWidget);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
-  m_modeIndicator = new ModeIndicator(commandWidget);
-  layout->addWidget(m_modeIndicator);
+  // m_modeIndicator = new ModeIndicator(commandWidget);
+  // layout->addWidget(m_modeIndicator);
 
   m_commandModule = new CommandModule(m_theme, commandWidget);
-  m_commandModule->setAppFont(m_fontFamily, m_fontSize);
+  m_commandModule->setAppFont(m_fontFamily, m_fontSize - 5);
   layout->addWidget(m_commandModule);
 
   layout->addStretch(1);

@@ -27,7 +27,7 @@ void ModeIndicator::setAppFont(const QString &family, int size) {
   m_fontSize = size;
   update();
 }
-QSize ModeIndicator::sizeHint() const { return QSize(80, 20); }
+QSize ModeIndicator::sizeHint() const { return QSize(80, height()); }
 QColor ModeIndicator::modeColor() const {
   switch (m_mode) {
   case Mode::Normal:
@@ -53,6 +53,7 @@ void ModeIndicator::paintEvent(QPaintEvent *) {
   p.fillRect(labelWidth, 0, arrowWidth, height(), arrowBg);
 
   QFont arrowFont(m_fontFamily, m_fontSize + 3);
+  arrowFont.setPixelSize(m_fontSize);
   p.setFont(arrowFont);
   p.setPen(bg);
 
@@ -61,7 +62,7 @@ void ModeIndicator::paintEvent(QPaintEvent *) {
 
   QFont labelFont(m_fontFamily, m_fontSize);
   labelFont.setWeight(QFont::Light);
-  labelFont.setPixelSize(m_fontSize + 3);
+  labelFont.setPixelSize(m_fontSize);
   p.setFont(labelFont);
   p.setPen(dark);
 

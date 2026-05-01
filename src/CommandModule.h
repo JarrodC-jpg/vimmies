@@ -40,8 +40,10 @@ private:
   QString m_fontFamily = "JetBrainsMono NL Nerd Font";
   int m_fontSize = 11;
 
+  static constexpr int k_textPixelSizeCompensation = 3;
   static constexpr int k_promptPadding = 6;
   static constexpr int k_arrowWidth = 12;
   static constexpr int k_promptWidth = 18;
   static constexpr int k_minTextWidth = 20;
+  static constexpr int k_veritcalPadding = 0;
 };

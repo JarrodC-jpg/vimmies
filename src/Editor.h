@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AppTheme.h"
 #include <QTextEdit>
 #include <QWidget>
 #include <qevent.h>
@@ -15,7 +16,7 @@ class Editor : public QTextEdit {
   Q_OBJECT
 
 public:
-  explicit Editor(QWidget *parent = nullptr);
+  explicit Editor(const EditorColors &c, QWidget *parent = nullptr);
 
   int lineNumberAreaWidth() const;
 
@@ -31,6 +32,7 @@ private slots:
   void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
+  EditorColors m_colors;
   LineNumberArea *m_lineNumberArea = nullptr;
   QString m_fontFamily = "JetBrainsMono NL Nerd Font";
   int m_fontSize = 11;

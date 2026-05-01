@@ -67,7 +67,7 @@ void CommandModule::setAppFont(const QString &family, int size) {
   m_fontSize = size;
 
   QFont f(family);
-  f.setPixelSize(size + 3);
+  f.setPixelSize(size + k_textPixelSizeCompensation);
   m_lineEdit->setFont(f);
 }
 
@@ -100,10 +100,13 @@ void CommandModule::setText(const QString &text) {
 }
 
 QSize CommandModule::sizeHint() const {
-  QFont f(m_fontFamily);
-  f.setPixelSize(m_fontSize);
-  QFontMetrics fm(f);
-
+  //  QFont f(m_fontFamily);
+  //  f.setPixelSize(m_fontSize);
+  //  QFontMetrics fm(f);
+  int fontPixelSize = QFontMetrics(m_lineEdit->font()).height();
+  int h = fontPixelSize + (2 * k_veritcalPadding);
+  qDebug() << "fontPixelHeight: " << h;
+  QFontMetrics fm(m_lineEdit->font());
   int textWidth =
       QFontMetrics(m_lineEdit->font()).horizontalAdvance(m_lineEdit->text()) +
       2;
@@ -118,10 +121,11 @@ QSize CommandModule::sizeHint() const {
   }
   // k_promptWidth + 8 + textWidth + k_arrowWidth;
 
-  return QSize(total, 20);
+  return QSize(total, h);
 }
 
 void CommandModule::paintEvent(QPaintEvent *) {
+  qDebug() << "Command Module Height: " << height();
   QPainter p(this);
   p.setRenderHint(QPainter::TextAntialiasing);
 
@@ -130,7 +134,7 @@ void CommandModule::paintEvent(QPaintEvent *) {
   p.fillRect(0, 0, width() - k_arrowWidth, height(), bg);
 
   QFont promptFont(m_fontFamily);
-  promptFont.setPixelSize(m_fontSize + 3);
+  promptFont.setPixelSize(m_fontSize);
   p.setFont(promptFont);
   p.setPen(promptColor);
   QFontMetrics fm(promptFont);
@@ -139,7 +143,7 @@ void CommandModule::paintEvent(QPaintEvent *) {
   p.drawText(4, y, "");
 
   int rightArrowX = width() - k_arrowWidth;
-  QFont arrowFont(m_fontFamily, m_fontSize + 3);
+  QFont arrowFont(m_fontFamily, m_fontSize);
   //  arrowFont.setPixelSize(m_fontSize + 5);
   QFontMetrics afm(arrowFont);
   int arrowY = (height() + afm.ascent() - afm.descent()) / 2;

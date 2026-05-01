@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "AppTheme.h"
 #include <QAbstractTextDocumentLayout>
 #include <QChar>
 #include <QPainter>
@@ -19,10 +20,11 @@
 #include <qvectornd.h>
 #include <qwidget.h>
 
-Editor::Editor(QWidget *parent) : QTextEdit(parent) {
+Editor::Editor(const EditorColors &c, QWidget *parent)
+    : QTextEdit(parent), m_colors(c) {
   m_lineNumberArea = new LineNumberArea(this, this);
 
-  QFont editorFont("JetBrainsMonoNL Nerd Font", 12);
+  QFont editorFont("JetBrainsMonoNL Nerd Font", 10);
   editorFont.setStyleHint(QFont::Monospace);
   setFont(editorFont);
 
@@ -87,7 +89,7 @@ void Editor::resizeEvent(QResizeEvent *event) {
 
 void Editor::lineNumberAreaPaintEvent(QPaintEvent *event) {
   QPainter painter(m_lineNumberArea);
-  painter.fillRect(event->rect(), QColor("#222436"));
+  painter.fillRect(event->rect(), QColor(m_colors.bg));
 
   QFont gutterFont(m_fontFamily, m_fontSize);
   gutterFont.setStyleHint(QFont::Monospace);
@@ -109,10 +111,10 @@ void Editor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 
       if (blockNumber == currentLine) {
         number = QString::number(blockNumber + 1);
-        painter.setPen(QColor("#e88864"));
+        painter.setPen(QColor(m_colors.currLineNum));
       } else {
         number = QString::number(qAbs(blockNumber - currentLine));
-        painter.setPen(QColor("#6c7086"));
+        painter.setPen(QColor(m_colors.lineNum));
       }
 
       painter.drawText(0, top, m_lineNumberArea->width() - 4,
