@@ -80,6 +80,52 @@ void MainWindow::loadAppSettings() {
   QSettings settings("stickies.conf", QSettings::IniFormat);
   m_fontFamily = settings.value("fontFamily", m_fontFamily).toString();
   m_fontSize = settings.value("fontSize", m_fontSize).toInt();
+
+  settings.beginGroup("mode_colors");
+  m_theme.mode.normalBg =
+      settings.value("modeModuleNormalBg", m_theme.mode.normalBg).toString();
+  m_theme.mode.insertBg =
+      settings.value("modeModuleInsertBg", m_theme.mode.insertBg).toString();
+  m_theme.mode.textColor =
+      settings.value("modeModuleTextColor", m_theme.mode.textColor).toString();
+  settings.endGroup();
+
+  settings.beginGroup("editor_colors");
+  m_theme.editor.bg = settings.value("editorBg", m_theme.editor.bg).toString();
+  m_theme.editor.fg = settings.value("editorFg", m_theme.editor.fg).toString();
+  m_theme.editor.currLine =
+      settings.value("editorCurrentLineColor", m_theme.editor.currLine)
+          .toString();
+  m_theme.editor.currLineNum =
+      settings.value("editorCurrentLineNumColor", m_theme.editor.currLineNum)
+          .toString();
+  m_theme.editor.lineNum =
+      settings.value("editorLineNumColor", m_theme.editor.lineNum).toString();
+  settings.endGroup();
+
+  settings.beginGroup("note_colors");
+  m_theme.note.one =
+      settings.value("noteOneColor", m_theme.note.one).toString();
+  m_theme.note.two =
+      settings.value("noteTwoColor", m_theme.note.two).toString();
+  m_theme.note.three =
+      settings.value("noteThreeColor", m_theme.note.three).toString();
+  m_theme.note.four =
+      settings.value("noteFourColor", m_theme.note.four).toString();
+  m_theme.note.five =
+      settings.value("noteFiveColor", m_theme.note.five).toString();
+  m_theme.note.six =
+      settings.value("noteSixColor", m_theme.note.six).toString();
+  settings.endGroup();
+
+  settings.beginGroup("command_colors");
+  m_theme.cmd.bg = settings.value("commandModuleBg", m_theme.cmd.bg).toString();
+  m_theme.cmd.textColor =
+      settings.value("commandModuleTextColor", m_theme.cmd.textColor)
+          .toString();
+  settings.endGroup();
+
+  qDebug() << "Theme loaded - editorBg:" << m_theme.editor.bg;
 }
 
 void MainWindow::updateModeIndicator() {
@@ -178,32 +224,26 @@ void MainWindow::updateTabBar() {
     QPushButton *tab = m_tabs[i];
 
     QString bgColor;
-    QString textColor = "#000000";
+    QString textColor = m_theme.note.tabTextColor;
     switch (color) {
 
     case StickieColor::Yellow:
-      bgColor = "#F9E2AF";
-      textColor = "#D4B46F";
+      bgColor = m_theme.note.one;
       break;
     case StickieColor::Cyan:
-      bgColor = "#74C7EC";
-      textColor = "#4A9BC4";
+      bgColor = m_theme.note.two;
       break;
     case StickieColor::Purple:
-      bgColor = "#B4BEFE";
-      textColor = "#7E8BDB";
+      bgColor = m_theme.note.three;
       break;
     case StickieColor::Peach:
-      bgColor = "#FAB387";
-      textColor = "#E08F5F";
+      bgColor = m_theme.note.four;
       break;
     case StickieColor::Pink:
-      bgColor = "#EB6690";
-      textColor = "#C14A72";
+      bgColor = m_theme.note.five;
       break;
     case StickieColor::Gray: {
-      bgColor = "#cdd6f4";
-      textColor = "#2d2d2d";
+      bgColor = m_theme.note.six;
       break;
     }
     }
@@ -256,7 +296,7 @@ void MainWindow::createCommandBar() {
   m_modeIndicator = new ModeIndicator(commandWidget);
   layout->addWidget(m_modeIndicator);
 
-  m_commandModule = new CommandModule(commandWidget);
+  m_commandModule = new CommandModule(m_theme, commandWidget);
   m_commandModule->setAppFont(m_fontFamily, m_fontSize);
   layout->addWidget(m_commandModule);
 
@@ -365,35 +405,28 @@ void MainWindow::applyColor(StickieColor color) {
   m_currentColor = color;
   loadTextForColor(color);
 
-  QString bgColor = "#222436";
-  QString textColor = "#222436";
-  QString textColorDark = "#222436";
+  QString bgColor = m_theme.editor.bg;
+  QString textColor = m_theme.editor.bg;
 
   switch (color) {
 
   case StickieColor::Yellow:
-    textColor = "#F9E2AF";
-    textColorDark = "#D4B46F";
+    textColor = m_theme.note.one;
     break;
   case StickieColor::Cyan:
-    textColor = "#74C7EC";
-    textColorDark = "#4A9BC4";
+    textColor = m_theme.note.two;
     break;
   case StickieColor::Purple:
-    textColor = "#B4BEFE";
-    textColorDark = "#7E8BDB";
+    textColor = m_theme.note.three;
     break;
   case StickieColor::Peach:
-    textColor = "#FAB387";
-    textColorDark = "#E08F5F";
+    textColor = m_theme.note.four;
     break;
   case StickieColor::Pink:
-    textColor = "#EB6690";
-    textColorDark = "#C14A72";
+    textColor = m_theme.note.five;
     break;
   case StickieColor::Gray: {
-    textColor = "#cdd6f4";
-    textColorDark = "#2d2d2d";
+    textColor = m_theme.note.six;
     break;
   }
   }
@@ -405,8 +438,7 @@ void MainWindow::applyColor(StickieColor color) {
   // setStyleSheet(style);
 
   QString windowStyle =
-      QString("QMainWindow {background-color: %1; border: 3px solid %1;}")
-          .arg(textColor);
+      QString("QMainWindow {background-color: %1;}").arg(textColor);
   setStyleSheet(windowStyle);
 }
 

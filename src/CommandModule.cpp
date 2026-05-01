@@ -1,4 +1,5 @@
 #include "CommandModule.h"
+#include "AppTheme.h"
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QPainter>
@@ -15,9 +16,11 @@
 #include <qobject.h>
 #include <qsize.h>
 #include <qsizepolicy.h>
+#include <qtextedit.h>
 #include <qwidget.h>
-
-CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
+// TODO:
+CommandModule::CommandModule(const AppTheme &theme, QWidget *parent)
+    : QWidget(parent), m_theme(theme) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   auto *layout = new QHBoxLayout(this);
@@ -28,12 +31,14 @@ CommandModule::CommandModule(QWidget *parent) : QWidget(parent) {
   m_lineEdit = new QLineEdit(this);
   m_lineEdit->setContentsMargins(0, 0, 0, 0);
   m_lineEdit->setFrame(false);
-  m_lineEdit->setStyleSheet("QLineEdit {"
-                            " background: transparent;"
-                            " border: none;"
-                            " padding-left: 0;"
-                            " color: #4fd6be;"
-                            "}");
+  QString lineStyle = QString("QLineEdit {"
+                              " background: transparent;"
+                              " border: none;"
+                              " padding-left: 0;"
+                              " color: %1;"
+                              "}")
+                          .arg(m_theme.cmd.textColor);
+  m_lineEdit->setStyleSheet(lineStyle);
   layout->addWidget(m_lineEdit);
   resize(sizeHint());
   updateGeometry();
@@ -113,18 +118,15 @@ QSize CommandModule::sizeHint() const {
   }
   // k_promptWidth + 8 + textWidth + k_arrowWidth;
 
-  qDebug() << "Width in sizeEvent" << total;
   return QSize(total, 20);
 }
 
 void CommandModule::paintEvent(QPaintEvent *) {
-  qDebug() << "Width in paintEvent" << width();
   QPainter p(this);
   p.setRenderHint(QPainter::TextAntialiasing);
 
-  QColor bg("#3b4261");
-  QColor dark("#1e2030");
-  QColor promptColor("#4fd6be");
+  QColor bg(m_theme.cmd.bg);
+  QColor promptColor(m_theme.cmd.textColor);
   p.fillRect(0, 0, width() - k_arrowWidth, height(), bg);
 
   QFont promptFont(m_fontFamily);
@@ -137,7 +139,6 @@ void CommandModule::paintEvent(QPaintEvent *) {
   p.drawText(4, y, "");
 
   int rightArrowX = width() - k_arrowWidth;
-  //  p.fillRect(rightArrowX, 0, k_arrowWidth, height(), dark);
   QFont arrowFont(m_fontFamily, m_fontSize + 3);
   //  arrowFont.setPixelSize(m_fontSize + 5);
   QFontMetrics afm(arrowFont);

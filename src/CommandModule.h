@@ -1,5 +1,5 @@
 #pragma once
-
+#include "AppTheme.h"
 #include <QLineEdit>
 #include <QWidget>
 #include <qcoreevent.h>
@@ -13,7 +13,7 @@
 class CommandModule : public QWidget {
   Q_OBJECT
 public:
-  explicit CommandModule(QWidget *parent = nullptr);
+  explicit CommandModule(const AppTheme &theme, QWidget *parent = nullptr);
 
   void setAppFont(const QString &family, int size);
   void activate();
@@ -35,6 +35,7 @@ protected:
   bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
+  AppTheme m_theme;
   QLineEdit *m_lineEdit = nullptr;
   QString m_fontFamily = "JetBrainsMono NL Nerd Font";
   int m_fontSize = 11;

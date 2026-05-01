@@ -1,4 +1,5 @@
 #pragma once
+#include "AppTheme.h"
 #include "CommandModule.h"
 #include "Editor.h"
 #include "ModeIndicator.h"
@@ -65,6 +66,8 @@ private:
 
   // Reset data in an empty project
   void resetAllData();
+
+  AppTheme m_theme;
 
   Mode m_mode = Mode::Normal;
 
