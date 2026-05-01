@@ -297,7 +297,7 @@ void MainWindow::createCommandBar() {
   // layout->addWidget(m_modeIndicator);
 
   m_commandModule = new CommandModule(m_theme, commandWidget);
-  m_commandModule->setAppFont(m_fontFamily, m_fontSize - 5);
+  m_commandModule->setAppFont(m_fontFamily, m_fontSize);
   layout->addWidget(m_commandModule);
 
   layout->addStretch(1);
