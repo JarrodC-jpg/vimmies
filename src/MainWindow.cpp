@@ -20,6 +20,7 @@
 #include <qcoreevent.h>
 #include <qdir.h>
 #include <qlabel.h>
+#include <qlayout.h>
 #include <qlogging.h>
 #include <qnamespace.h>
 #include <qobject.h>

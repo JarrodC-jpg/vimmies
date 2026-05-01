@@ -23,23 +23,26 @@ CommandModule::CommandModule(const AppTheme &theme, QWidget *parent)
     : QWidget(parent), m_theme(theme) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-  auto *layout = new QHBoxLayout(this);
-  // layout->setContentsMargins(k_promptWidth + 4, 0, k_arrowWidth + 4, 0);
-  layout->setContentsMargins(k_promptWidth + 4, 0, 0, 0);
-  layout->setSpacing(0);
+  //  auto *layout = new QHBoxLayout(this);
+  //  // layout->setContentsMargins(k_promptWidth + 4, 0, k_arrowWidth + 4, 0);
+  //  layout->setContentsMargins(k_promptWidth + 4, 0, 0, 0);
+  //  layout->setSpacing(0);
 
   m_lineEdit = new QLineEdit(this);
   m_lineEdit->setContentsMargins(0, 0, 0, 0);
   m_lineEdit->setFrame(false);
+  m_lineEdit->setTextMargins(0, 0, 0, 0);
+  m_lineEdit->setAttribute(Qt::WA_TransparentForMouseEvents, false);
   QString lineStyle = QString("QLineEdit {"
                               " background: transparent;"
                               " border: none;"
+                              " padding: 0;"
                               " padding-left: 0;"
                               " color: %1;"
                               "}")
                           .arg(m_theme.cmd.textColor);
   m_lineEdit->setStyleSheet(lineStyle);
-  layout->addWidget(m_lineEdit);
+  //  layout->addWidget(m_lineEdit);
   resize(sizeHint());
   updateGeometry();
   connect(m_lineEdit, &QLineEdit::returnPressed, this,
@@ -60,6 +63,14 @@ CommandModule::CommandModule(const AppTheme &theme, QWidget *parent)
     updateGeometry();
     update();
   });
+}
+
+void CommandModule::resizeEvent(QResizeEvent *event) {
+  QWidget::resizeEvent(event);
+
+  int x = k_promptWidth + k_promptPadding;
+  int w = width() - x - k_arrowWidth;
+  m_lineEdit->setGeometry(x, 0, w, height());
 }
 
 void CommandModule::setAppFont(const QString &family, int size) {

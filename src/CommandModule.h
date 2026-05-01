@@ -31,6 +31,7 @@ signals:
   void deactivated();
 
 protected:
+  void resizeEvent(QResizeEvent *event) override;
   void paintEvent(QPaintEvent *event) override;
   bool eventFilter(QObject *obj, QEvent *event) override;
 
