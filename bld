@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# vim: filetype=sh
+# Stickies build
+# Usage: bld  -> quick build
+#        bld -c  -> clean full build
+
+PROJECT_ROOT="$HOME/stickies"
+BUILD_DIR="$PROJECT_ROOT/build"
+VIMIES_DIR="$HOME/.local/share/Stickies"
+
+cd "$PROJECT_ROOT" || exit 1
+
+if [[ "$1" == "-c" ]]; then
+  echo "󰃢 Doing clean build..."
+  rm -rf "$BUILD_DIR"
+  mkdir -p "$BUILD_DIR"
+  cd "$BUILD_DIR"
+  cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug .. || exit 1
+else
+  # Quick build
+  if [[ ! -d "$BUILD_DIR" ]]; then
+    echo "⚠️  Build directory not found. Doing initial full build..."
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug .. || exit 1
+  else
+    cd "$BUILD_DIR"
+  fi
+fi
+
+if [[ "$1" == "-j" || "$1" == "-c" ]]; then
+  echo "󰃢 Cleaning all Stickies project files"
+  shopt -s nullglob
+
+  files=("$PROJECT_ROOT"/*vmi)
+  if [[ ${#files[@]} -eq 0 ]]; then
+    echo "No .vmi files found in $PROJECT_ROOT."
+  else
+    rm -f "${files[@]}"
+    echo "Deleted ${#files[@]} .vmi file(s)."
+  fi
+
+  sfiles=("$VIMIES_DIR"/*vmi)
+  if [[ ${#sfiles[@]} -eq 0 ]]; then
+    echo "No .vmi files found in $VIMIES_DIR."
+  else
+    rm -f "${sfiles[@]}"
+    echo "Deleted ${#sfiles[@]} .vmi file(s)."
+  fi
+
+fi
+echo "󰣪 Building with Ninja..."
+ninja -j$(nproc) || exit 1
