@@ -3,6 +3,7 @@
 #include "CommandModule.h"
 #include "Editor.h"
 #include "ModeIndicator.h"
+#include "ProjectLabelModule.h"
 #include <QCloseEvent>
 #include <QListWidget>
 #include <QMainWindow>
@@ -85,6 +86,7 @@ private:
   CommandModule *m_commandModule = nullptr;
   using CommandHandler = std::function<void(const QString &)>;
   QMap<QString, CommandHandler> m_commandHandlers;
+  ProjectLabelModule *m_projectLableModule = nullptr;
 
   QTimer *m_saveTimer = nullptr;
   std::map<StickieColor, QString> m_notes;

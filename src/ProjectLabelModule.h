@@ -10,15 +10,14 @@
 
 enum class Mode;
 
-class ModeIndicator : public QWidget {
+class ProjectLabelModule : public QWidget {
   Q_OBJECT
 
 public:
-  explicit ModeIndicator(const AppTheme &c, QWidget *parent = nullptr);
+  explicit ProjectLabelModule(const AppTheme &c, const QString &p,
+                              QWidget *parent = nullptr);
 
   void setAppFont(const QString &family, int size);
-
-  void setMode(Mode mode);
 
   QSize sizeHint() const override;
 
@@ -26,17 +25,9 @@ protected:
   void paintEvent(QPaintEvent *event) override;
 
 private:
-  QColor modeColor() const;
-
   AppTheme m_colors;
 
-  Mode m_mode;
-
-  struct ModeText {
-    QString normal = "NORMAL";
-    QString insert = "INSERT";
-    QString current = this->normal;
-  } m_modeText;
+  QString m_projectName;
 
   QString m_fontFamily = "JetBrainsMono NL Nerd Font";
   int m_fontSize = 11;

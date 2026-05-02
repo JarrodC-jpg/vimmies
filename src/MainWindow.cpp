@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "CommandModule.h"
 #include "ModeIndicator.h"
+#include "ProjectLabelModule.h"
 #include <QAction>
 #include <QDir>
 #include <QEvent>
@@ -294,14 +295,20 @@ void MainWindow::createCommandBar() {
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
-  // m_modeIndicator = new ModeIndicator(commandWidget);
-  // layout->addWidget(m_modeIndicator);
+  m_modeIndicator = new ModeIndicator(m_theme, commandWidget);
+  m_modeIndicator->setAppFont(m_fontFamily, m_fontSize);
+  layout->addWidget(m_modeIndicator);
 
   m_commandModule = new CommandModule(m_theme, commandWidget);
   m_commandModule->setAppFont(m_fontFamily, m_fontSize);
   layout->addWidget(m_commandModule);
 
   layout->addStretch(1);
+
+  m_projectLableModule =
+      new ProjectLabelModule(m_theme, QString("Project Name"), commandWidget);
+  m_projectLableModule->setAppFont(m_fontFamily, m_fontSize);
+  layout->addWidget(m_projectLableModule);
 
   auto *mainContainer = qobject_cast<QWidget *>(centralWidget());
   if (mainContainer && mainContainer->layout()) {

@@ -18,7 +18,7 @@
 #include <qsizepolicy.h>
 #include <qtextedit.h>
 #include <qwidget.h>
-// TODO:
+
 CommandModule::CommandModule(const AppTheme &theme, QWidget *parent)
     : QWidget(parent), m_theme(theme) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -42,7 +42,8 @@ CommandModule::CommandModule(const AppTheme &theme, QWidget *parent)
                               "}")
                           .arg(m_theme.cmd.textColor);
   m_lineEdit->setStyleSheet(lineStyle);
-  //  layout->addWidget(m_lineEdit);
+  k_arrowWidth = 12;
+
   resize(sizeHint());
   updateGeometry();
   connect(m_lineEdit, &QLineEdit::returnPressed, this,
@@ -75,10 +76,15 @@ void CommandModule::resizeEvent(QResizeEvent *event) {
 
 void CommandModule::setAppFont(const QString &family, int size) {
   m_fontFamily = family;
-  m_fontSize = size;
-
-  QFont f(family);
-  f.setPixelSize(size + k_textPixelSizeCompensation);
+  m_fontSize = size + k_textPixelSizeCompensation;
+  int nerdFontBuffer = qMax(2, m_fontSize / 8);
+  QFont f(m_fontFamily);
+  f.setPixelSize(m_fontSize);
+  k_arrowWidth = QFontMetrics(f).tightBoundingRect(QString("")).width() +
+                 nerdFontBuffer;
+  qDebug() << k_arrowWidth;
+  k_promptWidth = QFontMetrics(f).tightBoundingRect(QString("")).width() +
+                  nerdFontBuffer;
   m_lineEdit->setFont(f);
 }
 
@@ -116,7 +122,6 @@ QSize CommandModule::sizeHint() const {
   //  QFontMetrics fm(f);
   int fontPixelSize = QFontMetrics(m_lineEdit->font()).height();
   int h = fontPixelSize + (2 * k_veritcalPadding);
-  qDebug() << "fontPixelHeight: " << h;
   QFontMetrics fm(m_lineEdit->font());
   int textWidth =
       QFontMetrics(m_lineEdit->font()).horizontalAdvance(m_lineEdit->text()) +
@@ -136,7 +141,6 @@ QSize CommandModule::sizeHint() const {
 }
 
 void CommandModule::paintEvent(QPaintEvent *) {
-  qDebug() << "Command Module Height: " << height();
   QPainter p(this);
   p.setRenderHint(QPainter::TextAntialiasing);
 
@@ -154,8 +158,8 @@ void CommandModule::paintEvent(QPaintEvent *) {
   p.drawText(4, y, "");
 
   int rightArrowX = width() - k_arrowWidth;
-  QFont arrowFont(m_fontFamily, m_fontSize);
-  //  arrowFont.setPixelSize(m_fontSize + 5);
+  QFont arrowFont(m_fontFamily);
+  arrowFont.setPixelSize(m_fontSize);
   QFontMetrics afm(arrowFont);
   int arrowY = (height() + afm.ascent() - afm.descent()) / 2;
   p.setFont(arrowFont);
