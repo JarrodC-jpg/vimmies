@@ -43,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   createTabBar();
   setupCommandHandlers();
   updateModeIndicator();
-
   m_defaultSaveDir =
       QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
   QDir().mkpath(m_defaultSaveDir);
@@ -158,7 +157,7 @@ void MainWindow::createTextEditor() {
   m_textEdit->setAppFont(m_fontFamily, m_fontSize);
   m_textEdit->setAcceptRichText(true);
   m_textEdit->installEventFilter(this);
-
+  m_textEdit->setCursorBlock(true);
   m_editorView->setFocusProxy(m_textEdit);
 
   m_saveTimer = new QTimer(this);
@@ -756,15 +755,18 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     if (m_mode == Mode::Normal) {
       if (key == Qt::Key_I) {
         m_mode = Mode::Insert;
+        m_textEdit->setCursorBlock(false);
         updateModeIndicator();
         return true;
       }
+      m_textEdit->handleNormalModeKey(key);
       return true;
     }
 
     if (m_mode == Mode::Insert) {
       if (key == Qt::Key_Escape) {
         m_mode = Mode::Normal;
+        m_textEdit->setCursorBlock(true);
         updateModeIndicator();
         return true;
       }

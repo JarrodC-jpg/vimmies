@@ -27,7 +27,6 @@ void ProjectLabelModule::setAppFont(const QString &family, int size) {
   f.setPixelSize(m_fontSize);
   QFontMetrics fm(f);
   m_labelPadding = fm.horizontalAdvance(QString(" "));
-  int nerdFontBuffer = qMax(2, m_fontSize / 8);
   m_arrowWidth = QFontMetrics(f).tightBoundingRect(QString("")).width();
   update();
 }

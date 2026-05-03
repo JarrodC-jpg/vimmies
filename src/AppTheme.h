@@ -9,6 +9,7 @@ struct EditorColors {
   QString currLine = "#2f334d";
   QString currLineNum = "#e88864";
   QString lineNum = "#6c7086";
+  QString curorBlock = "#f5e0dc";
 };
 
 struct NoteColors {

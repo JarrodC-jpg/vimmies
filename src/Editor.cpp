@@ -11,12 +11,17 @@
 #include <qevent.h>
 #include <qfloat16.h>
 #include <qfont.h>
+#include <qfontmetrics.h>
+#include <qlist.h>
 #include <qminmax.h>
+#include <qnamespace.h>
 #include <qnumeric.h>
 #include <qobject.h>
 #include <qscrollbar.h>
 #include <qsizepolicy.h>
+#include <qtextcursor.h>
 #include <qtextedit.h>
+#include <qtextformat.h>
 #include <qvectornd.h>
 #include <qwidget.h>
 
@@ -40,6 +45,9 @@ Editor::Editor(const EditorColors &c, QWidget *parent)
   connect(this, &QTextEdit::cursorPositionChanged, this,
           [this]() { m_lineNumberArea->update(); });
 
+  connect(this, &QTextEdit::cursorPositionChanged, this,
+          &Editor::highlightCurrentLine);
+
   updateLineNumberAreaWidth(0);
 }
 
@@ -52,6 +60,35 @@ void Editor::setAppFont(const QString &family, int size) {
   setFont(f);
 
   m_lineNumberArea->update();
+}
+
+bool Editor::handleNormalModeKey(int key) {
+  QTextCursor cursor = textCursor();
+
+  if (key == Qt::Key_H) {
+    cursor.movePosition(QTextCursor::PreviousCharacter);
+  } else if (key == Qt::Key_L) {
+    cursor.movePosition(QTextCursor::NextCharacter);
+  } else if (key == Qt::Key_J) {
+    cursor.movePosition(QTextCursor::Down);
+  } else if (key == Qt::Key_K) {
+    cursor.movePosition(QTextCursor::Up);
+  } else {
+    return false;
+  }
+
+  setTextCursor(cursor);
+
+  return true;
+}
+
+void Editor::setCursorBlock(bool block) {
+  if (block) {
+    QFontMetrics fm(font());
+    setCursorWidth(fm.averageCharWidth());
+  } else {
+    setCursorWidth(2);
+  }
 }
 
 int Editor::lineNumberAreaWidth() const {
@@ -78,6 +115,21 @@ void Editor::updateLineNumberArea(const QRect &rect, int dy) {
     m_lineNumberArea->update(0, rect.y(), m_lineNumberArea->width(),
                              rect.height());
   }
+}
+
+void Editor::highlightCurrentLine() {
+  QList<QTextEdit::ExtraSelection> selections;
+
+  QTextEdit::ExtraSelection selection;
+
+  selection.format.setBackground(QColor(m_colors.currLine));
+  selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+
+  selection.cursor = textCursor();
+  selection.cursor.clearSelection();
+
+  selections.append(selection);
+  setExtraSelections(selections);
 }
 
 void Editor::resizeEvent(QResizeEvent *event) {

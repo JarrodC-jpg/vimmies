@@ -24,12 +24,17 @@ public:
 
   void setAppFont(const QString &family, int size);
 
+  bool handleNormalModeKey(int key);
+
+  void setCursorBlock(bool block);
+
 protected:
   void resizeEvent(QResizeEvent *event) override;
 
 private slots:
   void updateLineNumberAreaWidth(int newBlockCount);
   void updateLineNumberArea(const QRect &rect, int dy);
+  void highlightCurrentLine();
 
 private:
   EditorColors m_colors;
