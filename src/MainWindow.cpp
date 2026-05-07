@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "CommandModule.h"
+#include "Editor.h"
 #include "ModeIndicator.h"
 #include "ProjectLabelModule.h"
 #include <QAction>
@@ -26,6 +27,7 @@
 #include <qnamespace.h>
 #include <qobject.h>
 #include <qsettings.h>
+#include <qtextcursor.h>
 #include <set>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -75,6 +77,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() {
   saveCurrentText();
   saveToDisk();
+}
+
+void MainWindow::enterInsertMode() {
+  m_mode = Mode::Insert;
+  updateModeIndicator();
+  m_textEdit->setCursorBlock(false);
+  m_textEdit->viewport()->update();
 }
 
 void MainWindow::loadAppSettings() {
@@ -166,6 +175,11 @@ void MainWindow::createTextEditor() {
 
   connect(m_saveTimer, &QTimer::timeout, this, [this]() { saveToDisk(); });
 
+  connect(m_textEdit, &Editor::requestInsertMode, this,
+          &MainWindow::enterInsertMode);
+
+  connect(this, &MainWindow::exitInsertMode, m_textEdit,
+          &Editor::exitInsertMode);
   connect(m_textEdit, &QTextEdit::textChanged, this, [this]() {
     restoreFontSettings();
     saveCurrentText();
@@ -753,12 +767,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     }
 
     if (m_mode == Mode::Normal) {
-      if (key == Qt::Key_I) {
-        m_mode = Mode::Insert;
-        m_textEdit->setCursorBlock(false);
-        updateModeIndicator();
-        return true;
-      }
       m_textEdit->handleNormalModeKey(key);
       return true;
     }
@@ -767,6 +775,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
       if (key == Qt::Key_Escape) {
         m_mode = Mode::Normal;
         m_textEdit->setCursorBlock(true);
+        exitInsertMode();
         updateModeIndicator();
         return true;
       }

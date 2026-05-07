@@ -14,6 +14,8 @@ class LineNumberArea;
 
 class Editor : public QTextEdit {
   Q_OBJECT
+signals:
+  void requestInsertMode();
 
 public:
   explicit Editor(const EditorColors &c, QWidget *parent = nullptr);
@@ -31,6 +33,8 @@ public:
 protected:
   void resizeEvent(QResizeEvent *event) override;
 
+public slots:
+  void exitInsertMode();
 private slots:
   void updateLineNumberAreaWidth(int newBlockCount);
   void updateLineNumberArea(const QRect &rect, int dy);

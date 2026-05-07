@@ -2,6 +2,7 @@
 #include "AppTheme.h"
 #include <QAbstractTextDocumentLayout>
 #include <QChar>
+#include <QGuiApplication>
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -12,6 +13,7 @@
 #include <qfloat16.h>
 #include <qfont.h>
 #include <qfontmetrics.h>
+#include <qguiapplication.h>
 #include <qlist.h>
 #include <qminmax.h>
 #include <qnamespace.h>
@@ -64,15 +66,35 @@ void Editor::setAppFont(const QString &family, int size) {
 
 bool Editor::handleNormalModeKey(int key) {
   QTextCursor cursor = textCursor();
-
-  if (key == Qt::Key_H) {
-    cursor.movePosition(QTextCursor::PreviousCharacter);
+  QFontMetrics fm(font());
+  if (key == Qt::Key_I) {
+    emit requestInsertMode();
+  } else if (key == Qt::Key_A) {
+    if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
+      cursor.movePosition(QTextCursor::EndOfLine);
+    } else {
+      cursor.movePosition(QTextCursor::NextCharacter);
+    }
+    emit requestInsertMode();
+  } else if (key == Qt::Key_H) {
+    if (cursor.positionInBlock() > 0) {
+      cursor.movePosition(QTextCursor::PreviousCharacter);
+    }
   } else if (key == Qt::Key_L) {
-    cursor.movePosition(QTextCursor::NextCharacter);
+    if (cursor.positionInBlock() < cursor.block().length() - 2) {
+      cursor.movePosition(QTextCursor::NextCharacter);
+    }
   } else if (key == Qt::Key_J) {
     cursor.movePosition(QTextCursor::Down);
   } else if (key == Qt::Key_K) {
     cursor.movePosition(QTextCursor::Up);
+  } else if (key == Qt::Key_0) {
+    cursor.movePosition(QTextCursor::StartOfLine);
+  } else if (key == Qt::Key_Dollar) {
+    cursor.movePosition(QTextCursor::EndOfLine);
+    if (cursor.positionInBlock() > 0) {
+      cursor.movePosition(QTextCursor::PreviousCharacter);
+    }
   } else {
     return false;
   }
@@ -80,6 +102,14 @@ bool Editor::handleNormalModeKey(int key) {
   setTextCursor(cursor);
 
   return true;
+}
+
+void Editor::exitInsertMode() {
+  QTextCursor c = textCursor();
+  if (c.positionInBlock() > 0) {
+    c.movePosition(QTextCursor::PreviousCharacter);
+  }
+  setTextCursor(c);
 }
 
 void Editor::setCursorBlock(bool block) {

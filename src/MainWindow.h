@@ -29,6 +29,12 @@ protected:
   void closeEvent(QCloseEvent *event) override;
   void resizeEvent(QResizeEvent *event) override;
 
+signals:
+  void exitInsertMode();
+
+private slots:
+  void enterInsertMode();
+
 private:
   // Creation of window views and such
   void createMainContainer();
