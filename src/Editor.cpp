@@ -15,6 +15,7 @@
 #include <qfontmetrics.h>
 #include <qguiapplication.h>
 #include <qlist.h>
+#include <qlogging.h>
 #include <qminmax.h>
 #include <qnamespace.h>
 #include <qnumeric.h>
@@ -67,6 +68,7 @@ void Editor::setAppFont(const QString &family, int size) {
 bool Editor::handleNormalModeKey(int key) {
   QTextCursor cursor = textCursor();
   QFontMetrics fm(font());
+
   if (key == Qt::Key_I) {
     emit requestInsertMode();
   } else if (key == Qt::Key_A) {
@@ -76,24 +78,72 @@ bool Editor::handleNormalModeKey(int key) {
       cursor.movePosition(QTextCursor::NextCharacter);
     }
     emit requestInsertMode();
+  } else if (key == Qt::Key_O) {
+    if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
+      cursor.movePosition(QTextCursor::StartOfLine);
+      cursor.insertText("\n");
+      cursor.movePosition(QTextCursor::Up);
+    } else {
+      cursor.movePosition(QTextCursor::EndOfLine);
+      cursor.insertText("\n");
+    }
+    emit requestInsertMode();
   } else if (key == Qt::Key_H) {
     if (cursor.positionInBlock() > 0) {
       cursor.movePosition(QTextCursor::PreviousCharacter);
+      currCursorPos = cursor.positionInBlock();
+      qDebug() << currCursorPos;
     }
   } else if (key == Qt::Key_L) {
     if (cursor.positionInBlock() < cursor.block().length() - 2) {
       cursor.movePosition(QTextCursor::NextCharacter);
+      currCursorPos = cursor.positionInBlock();
+      qDebug() << currCursorPos;
     }
   } else if (key == Qt::Key_J) {
     cursor.movePosition(QTextCursor::Down);
+    if (cursor.positionInBlock() > cursor.block().length() - 2 &&
+        cursor.positionInBlock() > 0) {
+      cursor.movePosition(QTextCursor::PreviousCharacter);
+    }
+    if (currCursorPos > cursor.positionInBlock()) {
+      if (cursor.block().length() - 2 <= currCursorPos) {
+        int len = cursor.block().length() - 2;
+        if (len < 0) {
+          len = 0;
+        }
+        cursor.setPosition(len + cursor.block().position());
+      } else {
+        auto pos = cursor.block().position() + currCursorPos;
+        qDebug() << pos;
+        cursor.setPosition(pos);
+      }
+    }
   } else if (key == Qt::Key_K) {
     cursor.movePosition(QTextCursor::Up);
+    if (currCursorPos > cursor.positionInBlock()) {
+      if (cursor.block().length() - 2 <= currCursorPos) {
+        int len = cursor.block().length() - 2;
+        if (len < 0) {
+          len = 0;
+        }
+        cursor.setPosition(len + cursor.block().position());
+      } else {
+        auto pos = cursor.block().position() + currCursorPos;
+        qDebug() << pos;
+        cursor.setPosition(pos);
+      }
+    }
   } else if (key == Qt::Key_0) {
     cursor.movePosition(QTextCursor::StartOfLine);
   } else if (key == Qt::Key_Dollar) {
     cursor.movePosition(QTextCursor::EndOfLine);
     if (cursor.positionInBlock() > 0) {
       cursor.movePosition(QTextCursor::PreviousCharacter);
+    }
+  } else if (key == Qt::Key_X) {
+    if (cursor.positionInBlock() < cursor.block().length() - 1) {
+      cursor.deleteChar();
     }
   } else {
     return false;

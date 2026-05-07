@@ -45,6 +45,7 @@ private:
   LineNumberArea *m_lineNumberArea = nullptr;
   QString m_fontFamily = "JetBrainsMono NL Nerd Font";
   int m_fontSize = 11;
+  int currCursorPos = 0;
 };
 
 class LineNumberArea : public QWidget {
