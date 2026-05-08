@@ -23,6 +23,7 @@ add_executable(Stickies
   src/CommandModule.cpp
   src/CommandModule.cpp
   src/ProjectLabelModule.cpp
+  src/CommandTrie.cpp
 )
 
 target_link_libraries(Stickies PRIVATE Qt6::Core Qt6::Widgets)

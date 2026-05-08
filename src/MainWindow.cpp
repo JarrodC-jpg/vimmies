@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 #include <qcoreevent.h>
 #include <qdir.h>
+#include <qfileinfo.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlogging.h>
@@ -37,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
   setStyleSheet("QMainWindow { border 3px solid #232378;}");
   resize(420, 500);
-
   createMainContainer();
   createTextEditor();
   createProjectList();
@@ -319,7 +319,7 @@ void MainWindow::createCommandBar() {
   layout->addStretch(1);
 
   m_projectLableModule =
-      new ProjectLabelModule(m_theme, QString("Project Name"), commandWidget);
+      new ProjectLabelModule(m_theme, QString("Empty"), commandWidget);
   m_projectLableModule->setAppFont(m_fontFamily, m_fontSize);
   layout->addWidget(m_projectLableModule);
 
@@ -547,7 +547,8 @@ void MainWindow::loadFromDisk() {
     qDebug() << "No " << m_projectFilePath << " file found - starting fresh";
     return;
   }
-
+  QFileInfo fi(file);
+  m_projectLableModule->setProjectString(fi.baseName());
   QByteArray data = file.readAll();
   file.close();
 

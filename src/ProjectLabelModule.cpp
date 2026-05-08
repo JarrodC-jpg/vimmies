@@ -30,6 +30,11 @@ void ProjectLabelModule::setAppFont(const QString &family, int size) {
   m_arrowWidth = QFontMetrics(f).tightBoundingRect(QString("")).width();
   update();
 }
+
+void ProjectLabelModule::setProjectString(const QString &s) {
+  m_projectName = s;
+}
+
 QSize ProjectLabelModule::sizeHint() const {
   QFont f(m_fontFamily);
   f.setPixelSize(m_fontSize);

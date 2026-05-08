@@ -7,6 +7,7 @@
 int main(int argc, char *argv[]) {
   // Create the qt application object - this handles events,windows, etc.
   QApplication app(argc, argv);
+  QApplication::setCursorFlashTime(0);
 
   // Create a basic window (QWidget is the base class for all windows/widgets)
   MainWindow window;

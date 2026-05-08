@@ -1,6 +1,6 @@
 #pragma once
-
 #include "AppTheme.h"
+#include "CommandTrie.h"
 #include <QTextEdit>
 #include <QWidget>
 #include <qevent.h>
@@ -41,6 +41,8 @@ private slots:
   void highlightCurrentLine();
 
 private:
+  void registerCommands();
+  CommandTrie m_trie;
   EditorColors m_colors;
   LineNumberArea *m_lineNumberArea = nullptr;
   QString m_fontFamily = "JetBrainsMono NL Nerd Font";

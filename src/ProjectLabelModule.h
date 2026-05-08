@@ -19,6 +19,7 @@ public:
 
   void setAppFont(const QString &family, int size);
 
+  void setProjectString(const QString &s);
   QSize sizeHint() const override;
 
 protected:
