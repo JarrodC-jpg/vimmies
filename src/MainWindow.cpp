@@ -768,7 +768,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     }
 
     if (m_mode == Mode::Normal) {
-      m_textEdit->handleNormalModeKey(key);
+      m_textEdit->handleNormalModeKey(keyEvent->keyCombination());
       return true;
     }
 

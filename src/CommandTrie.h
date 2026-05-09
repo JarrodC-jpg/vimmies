@@ -2,11 +2,11 @@
 #include <QMap>
 #include <functional>
 #include <qalgorithms.h>
+#include <qhash.h>
 #include <qlist.h>
-#include <qmap.h>
 
 struct TrieNode {
-  QMap<int, TrieNode *> children;
+  QHash<QKeyCombination, TrieNode *> children;
   std::function<void()> handler;
 
   ~TrieNode() { qDeleteAll(children); }
@@ -19,8 +19,9 @@ public:
   CommandTrie();
   ~CommandTrie();
 
-  void insert(const QList<int> &keys, std::function<void()> handler);
-  FeedResult feed(int key);
+  void insert(const QList<QKeyCombination> &keys,
+              std::function<void()> handler);
+  FeedResult feed(QKeyCombination key);
   void reset();
 
 private:

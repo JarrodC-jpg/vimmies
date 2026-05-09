@@ -74,7 +74,7 @@ void Editor::setAppFont(const QString &family, int size) {
 }
 
 void Editor::registerCommands() {
-  m_trie.insert({Qt::Key_H}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_H)}, [this]() {
     QTextCursor cursor = textCursor();
     if (cursor.positionInBlock() > 0) {
       cursor.movePosition(QTextCursor::PreviousCharacter);
@@ -83,7 +83,7 @@ void Editor::registerCommands() {
     setTextCursor(cursor);
   });
 
-  m_trie.insert({Qt::Key_L}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_L)}, [this]() {
     QTextCursor cursor = textCursor();
     if (cursor.positionInBlock() < cursor.block().length() - 2) {
       cursor.movePosition(QTextCursor::NextCharacter);
@@ -91,7 +91,7 @@ void Editor::registerCommands() {
     }
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_J}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_J)}, [this]() {
     QTextCursor cursor = textCursor();
     cursor.movePosition(QTextCursor::Down);
     if (cursor.positionInBlock() > cursor.block().length() - 2 &&
@@ -113,7 +113,7 @@ void Editor::registerCommands() {
     }
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_K}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_K)}, [this]() {
     QTextCursor cursor = textCursor();
     cursor.movePosition(QTextCursor::Up);
     if (currCursorPos > cursor.positionInBlock()) {
@@ -131,26 +131,45 @@ void Editor::registerCommands() {
     }
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_I}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_I)}, [this]() {
     QTextCursor cursor = textCursor();
     currCursorPos = cursor.positionInBlock();
     emit requestInsertMode();
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_A}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_A)}, [this]() {
     QTextCursor cursor = textCursor();
     currCursorPos = cursor.positionInBlock();
-    if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
-      cursor.movePosition(QTextCursor::EndOfLine);
-    } else {
-      cursor.movePosition(QTextCursor::NextCharacter);
-    }
+    cursor.movePosition(QTextCursor::NextCharacter);
     emit requestInsertMode();
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_O}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::ShiftModifier, Qt::Key_A)}, [this]() {
     QTextCursor cursor = textCursor();
     currCursorPos = cursor.positionInBlock();
+    cursor.movePosition(QTextCursor::EndOfLine);
+    emit requestInsertMode();
+    setTextCursor(cursor);
+  });
+  m_trie.insert({QKeyCombination(Qt::Key_O)}, [this]() {
+    QTextCursor cursor = textCursor();
+    currCursorPos = cursor.positionInBlock();
+    cursor.movePosition(QTextCursor::EndOfLine);
+    cursor.insertText("\n");
+    emit requestInsertMode();
+    setTextCursor(cursor);
+  });
+  m_trie.insert({QKeyCombination(Qt::ShiftModifier, Qt::Key_O)}, [this]() {
+    QTextCursor cursor = textCursor();
+    currCursorPos = cursor.positionInBlock();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    cursor.insertText("\n");
+    cursor.movePosition(QTextCursor::Up);
+    emit requestInsertMode();
+    setTextCursor(cursor);
+  });
+  m_trie.insert({QKeyCombination(Qt::Key_0)}, [this]() {
+    QTextCursor cursor = textCursor();
     if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
       cursor.movePosition(QTextCursor::StartOfLine);
       cursor.insertText("\n");
@@ -162,20 +181,7 @@ void Editor::registerCommands() {
     emit requestInsertMode();
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_0}, [this]() {
-    QTextCursor cursor = textCursor();
-    if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
-      cursor.movePosition(QTextCursor::StartOfLine);
-      cursor.insertText("\n");
-      cursor.movePosition(QTextCursor::Up);
-    } else {
-      cursor.movePosition(QTextCursor::EndOfLine);
-      cursor.insertText("\n");
-    }
-    emit requestInsertMode();
-    setTextCursor(cursor);
-  });
-  m_trie.insert({Qt::Key_Dollar}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_Dollar)}, [this]() {
     QTextCursor cursor = textCursor();
     cursor.movePosition(QTextCursor::EndOfLine);
     if (cursor.positionInBlock() > 0) {
@@ -183,7 +189,7 @@ void Editor::registerCommands() {
     }
     setTextCursor(cursor);
   });
-  m_trie.insert({Qt::Key_X}, [this]() {
+  m_trie.insert({QKeyCombination(Qt::Key_X)}, [this]() {
     QTextCursor cursor = textCursor();
     if (cursor.positionInBlock() < cursor.block().length() - 1) {
       cursor.deleteChar();
@@ -194,96 +200,9 @@ void Editor::registerCommands() {
   //  m_trie.insert({Qt::Key_L}, [this](){});
 }
 
-bool Editor::handleNormalModeKey(int key) {
+bool Editor::handleNormalModeKey(QKeyCombination key) {
   FeedResult result = m_trie.feed(key);
   return result != FeedResult::NoMatch;
-
-  QTextCursor cursor = textCursor();
-  QFontMetrics fm(font());
-
-  if (key == Qt::Key_I) {
-    emit requestInsertMode();
-  } else if (key == Qt::Key_A) {
-    if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
-      cursor.movePosition(QTextCursor::EndOfLine);
-    } else {
-      cursor.movePosition(QTextCursor::NextCharacter);
-    }
-    emit requestInsertMode();
-  } else if (key == Qt::Key_O) {
-    if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
-      cursor.movePosition(QTextCursor::StartOfLine);
-      cursor.insertText("\n");
-      cursor.movePosition(QTextCursor::Up);
-    } else {
-      cursor.movePosition(QTextCursor::EndOfLine);
-      cursor.insertText("\n");
-    }
-    emit requestInsertMode();
-  } else if (key == Qt::Key_H) {
-    if (cursor.positionInBlock() > 0) {
-      cursor.movePosition(QTextCursor::PreviousCharacter);
-      currCursorPos = cursor.positionInBlock();
-      qDebug() << currCursorPos;
-    }
-  } else if (key == Qt::Key_L) {
-    if (cursor.positionInBlock() < cursor.block().length() - 2) {
-      cursor.movePosition(QTextCursor::NextCharacter);
-      currCursorPos = cursor.positionInBlock();
-      qDebug() << currCursorPos;
-    }
-  } else if (key == Qt::Key_J) {
-    cursor.movePosition(QTextCursor::Down);
-    if (cursor.positionInBlock() > cursor.block().length() - 2 &&
-        cursor.positionInBlock() > 0) {
-      cursor.movePosition(QTextCursor::PreviousCharacter);
-    }
-    if (currCursorPos > cursor.positionInBlock()) {
-      if (cursor.block().length() - 2 <= currCursorPos) {
-        int len = cursor.block().length() - 2;
-        if (len < 0) {
-          len = 0;
-        }
-        cursor.setPosition(len + cursor.block().position());
-      } else {
-        auto pos = cursor.block().position() + currCursorPos;
-        qDebug() << pos;
-        cursor.setPosition(pos);
-      }
-    }
-  } else if (key == Qt::Key_K) {
-    cursor.movePosition(QTextCursor::Up);
-    if (currCursorPos > cursor.positionInBlock()) {
-      if (cursor.block().length() - 2 <= currCursorPos) {
-        int len = cursor.block().length() - 2;
-        if (len < 0) {
-          len = 0;
-        }
-        cursor.setPosition(len + cursor.block().position());
-      } else {
-        auto pos = cursor.block().position() + currCursorPos;
-        qDebug() << pos;
-        cursor.setPosition(pos);
-      }
-    }
-  } else if (key == Qt::Key_0) {
-    cursor.movePosition(QTextCursor::StartOfLine);
-  } else if (key == Qt::Key_Dollar) {
-    cursor.movePosition(QTextCursor::EndOfLine);
-    if (cursor.positionInBlock() > 0) {
-      cursor.movePosition(QTextCursor::PreviousCharacter);
-    }
-  } else if (key == Qt::Key_X) {
-    if (cursor.positionInBlock() < cursor.block().length() - 1) {
-      cursor.deleteChar();
-    }
-  } else {
-    return false;
-  }
-
-  setTextCursor(cursor);
-
-  return true;
 }
 
 void Editor::exitInsertMode() {

@@ -8,10 +8,10 @@ CommandTrie::CommandTrie() {
 
 CommandTrie::~CommandTrie() { delete m_root; }
 
-void CommandTrie::insert(const QList<int> &keys,
+void CommandTrie::insert(const QList<QKeyCombination> &keys,
                          std::function<void()> handler) {
   TrieNode *node = m_root;
-  for (int key : keys) {
+  for (QKeyCombination key : keys) {
     if (!node->children.contains(key)) {
       node->children[key] = new TrieNode();
     }
@@ -22,7 +22,7 @@ void CommandTrie::insert(const QList<int> &keys,
 
 void CommandTrie::reset() { m_current = m_root; }
 
-FeedResult CommandTrie::feed(int key) {
+FeedResult CommandTrie::feed(QKeyCombination key) {
   if (!m_current->children.contains(key)) {
     reset();
     return FeedResult::NoMatch;

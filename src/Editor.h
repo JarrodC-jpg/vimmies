@@ -4,6 +4,7 @@
 #include <QTextEdit>
 #include <QWidget>
 #include <qevent.h>
+#include <qnamespace.h>
 #include <qobject.h>
 #include <qsizepolicy.h>
 #include <qtextedit.h>
@@ -26,7 +27,7 @@ public:
 
   void setAppFont(const QString &family, int size);
 
-  bool handleNormalModeKey(int key);
+  bool handleNormalModeKey(QKeyCombination key);
 
   void setCursorBlock(bool block);
 
